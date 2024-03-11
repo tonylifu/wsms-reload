@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatus;
 @Setter
 @Builder
 public class ApiResponse {
-    public String responseMessage;
-    public String responseCode;
-    public HttpStatus httpStatusCode;
-    boolean isError;
+    private String responseMessage;
+    private String responseCode;
+    private HttpStatus httpStatusCode;
+    private boolean isError;
 
     public ApiResponse(String responseMessage, String responseCode, HttpStatus httpStatusCode, boolean isError) {
         this.responseMessage = responseMessage;
