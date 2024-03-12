@@ -1,6 +1,8 @@
 package com.lifu.wsms.reload.entity;
 
-import com.lifu.wsms.reload.dto.request.Address;
+import com.lifu.wsms.reload.dto.Address;
+import com.lifu.wsms.reload.dto.Contact;
+import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.enums.Gender;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,4 +37,9 @@ public class Student {
     @Embedded
     private Address address;
 
+    @Embedded
+    private Contact contact;
+
+    @Embedded
+    private LegalGuardian legalGuardian;
 }

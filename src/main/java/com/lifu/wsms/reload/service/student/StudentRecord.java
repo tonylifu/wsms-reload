@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.service;
+package com.lifu.wsms.reload.service.student;
 
 import com.lifu.wsms.reload.api.StudentService;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;

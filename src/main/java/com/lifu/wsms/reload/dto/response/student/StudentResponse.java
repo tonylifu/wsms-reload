@@ -1,6 +1,6 @@
 package com.lifu.wsms.reload.dto.response.student;
 
-import com.lifu.wsms.reload.dto.request.Address;
+import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.enums.Gender;
 import lombok.Builder;
