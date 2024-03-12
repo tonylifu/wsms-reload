@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.dto.request;
+package com.lifu.wsms.reload.dto.request.student;
 
 import lombok.Builder;
 import lombok.Getter;

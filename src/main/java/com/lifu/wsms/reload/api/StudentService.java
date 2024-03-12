@@ -1,7 +1,7 @@
 package com.lifu.wsms.reload.api;
 
-import com.lifu.wsms.reload.dto.request.CreateStudentRequest;
-import com.lifu.wsms.reload.dto.request.UpdateStudentRequest;
+import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
+import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
