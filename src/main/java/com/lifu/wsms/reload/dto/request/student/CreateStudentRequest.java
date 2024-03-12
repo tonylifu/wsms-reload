@@ -1,10 +1,10 @@
-package com.lifu.wsms.reload.dto.request;
+package com.lifu.wsms.reload.dto.request.student;
 
+import com.lifu.wsms.reload.dto.request.Address;
 import com.lifu.wsms.reload.enums.Gender;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails;
 
 @Getter
 @Setter
