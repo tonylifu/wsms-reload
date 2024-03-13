@@ -14,4 +14,5 @@ public class Address {
     private String localGovtArea;
     private String state;
     private String country;
+
 }
