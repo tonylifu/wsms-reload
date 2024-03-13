@@ -11,4 +11,5 @@ public class Contact {
     private String email;
     private String mobilePhone;
     private String telephone;
+
 }

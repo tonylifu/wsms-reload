@@ -11,6 +11,7 @@ import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.util.TestUtil;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +39,14 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
         assertTrue(createResponse.isRight());
         var createResultMap = createResponse.get().getBody();
-        assertEquals(HttpStatus.CREATED, createResponse.get().getHttpStatusCode());
+        assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
         assertEquals("AABB2024", createResultMap.get("studentId"));
 
         // Read Student
         Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("AABB2024");
         assertTrue(readResponse.isRight());
         var readResultMap = readResponse.get().getBody();
-        assertEquals(HttpStatus.OK, readResponse.get().getHttpStatusCode());
+        assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
         assertEquals("AABB2024", readResultMap.get("studentId"));
         assertEquals("David", readResultMap.get("firstName"));
 
@@ -75,7 +76,7 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
         assertTrue(createResponse.isLeft());
         var createResultMap = createResponse.get().getBody();
-        assertEquals(HttpStatus.BAD_REQUEST, createResponse.get().getHttpStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, createResponse.get().getApiResponse().getHttpStatusCode());
         assertNull(createResultMap.get("studentId"));
     }
 
@@ -117,40 +118,7 @@ class StudentRecordTest {
     }
 
     private CreateStudentRequest getCreateStudentRequest() {
-        return CreateStudentRequest.builder()
-                .studentId("AABB2024")
-                .firstName("David")
-                .middleName("Owogoga")
-                .lastName("Lifu")
-                .dob(AppUtil.convertLocalDateToLong(LocalDate.of(2010,1,1)))
-                .gender(Gender.MALE)
-                .address(Address.builder()
-                        .houseNumber("21")
-                        .streetName("Lyon Crescent")
-                        .area("Stirling")
-                        .country("United Kingdom")
-                        .build())
-                .contact(Contact.builder()
-                        .email("davidlifu@gmail.com")
-                        .mobilePhone("+447766433489")
-                        .telephone("013240000000")
-                        .build())
-                .legalGuardian(LegalGuardian.builder()
-                        .isBiologicalParentListed(Boolean.TRUE)
-                        .mother("Ladi")
-                        .motherContactInformation(Contact.builder()
-                                .email("ladi@gmail.com")
-                                .mobilePhone("+447766433489")
-                                .telephone("013240000000")
-                                .build())
-                        .father("Ohiero")
-                        .fatherContactInformation(Contact.builder()
-                                .email("ohiero@gmail.com")
-                                .mobilePhone("+447766433489")
-                                .telephone("013240000000")
-                                .build())
-                        .build())
-                .build();
+        return TestUtil.getCreateStudentRequest();
     }
 
 }

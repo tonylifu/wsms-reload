@@ -6,18 +6,20 @@ import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.enums.Gender;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-public class StudentResponse extends CreateStudentRequest {
-    @Builder
-    public StudentResponse(String studentId,
-                           String firstName,
-                           String middleName,
-                           String lastName,
-                           long dob,
-                           Gender gender,
-                           Address address,
-                           Contact contact,
-                           LegalGuardian legalGuardian) {
-        super(studentId, firstName, middleName, lastName, dob, gender, address, contact, legalGuardian);
-    }
+@Getter
+@Setter
+@Builder
+public class StudentResponse {
+    private String studentId;
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private long dob;
+    private Gender gender;
+    private Address address;
+    private Contact contact;
+    private LegalGuardian legalGuardian;
 }

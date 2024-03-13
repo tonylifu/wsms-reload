@@ -8,20 +8,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
-public class UpdateStudentRequest extends CreateStudentRequest {
-    @Builder
-    public UpdateStudentRequest(String studentId,
-                                String firstName,
-                                String middleName,
-                                String lastName,
-                                long dob,
-                                Gender gender,
-                                Address address,
-                                Contact contact,
-                                LegalGuardian legalGuardian) {
-        super(studentId, firstName, middleName, lastName, dob, gender, address, contact, legalGuardian);
-    }
-}
+@Builder
+public class UpdateStudentRequest {
+    private String studentId;
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private long dob;
+    private Gender gender;
+    private Address address;
+    private Contact contact;
+    private LegalGuardian legalGuardian;
 }

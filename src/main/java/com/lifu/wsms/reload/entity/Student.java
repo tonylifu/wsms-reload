@@ -6,6 +6,8 @@ import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.enums.Gender;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 
 @Entity
@@ -34,12 +36,15 @@ public class Student {
     @Column(nullable = false)
     private Gender gender;
 
-    @Embedded
+    //@Embedded
+    @JdbcTypeCode(SqlTypes.JSON)
     private Address address;
 
-    @Embedded
+    //@Embedded
+    @JdbcTypeCode(SqlTypes.JSON)
     private Contact contact;
 
-    @Embedded
+    //@Embedded
+    @JdbcTypeCode(SqlTypes.JSON)
     private LegalGuardian legalGuardian;
 }

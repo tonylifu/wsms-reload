@@ -11,17 +11,8 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class SuccessResponse extends ApiResponse {
-
-    private final Map<String, Object> body;
-
-    @Builder
-    public SuccessResponse(String responseMessage,
-                           String responseCode,
-                           HttpStatus httpStatusCode,
-                           boolean isError,
-                           Map<String, Object> body) {
-        super(responseMessage, responseCode, httpStatusCode, isError);
-        this.body = Map.copyOf(body);
-    }
+@Builder
+public class SuccessResponse {
+    private final Map<String, Object> body = new HashMap<>();
+    private ApiResponse apiResponse;
 }

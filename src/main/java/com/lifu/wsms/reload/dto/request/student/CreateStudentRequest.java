@@ -10,7 +10,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateStudentRequest extends StudentRequest {
+@Builder
+public class CreateStudentRequest {
+    private String studentId;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -19,25 +21,4 @@ public class CreateStudentRequest extends StudentRequest {
     private Address address;
     private Contact contact;
     private LegalGuardian legalGuardian;
-
-    @Builder
-    public CreateStudentRequest(String studentId,
-                                String firstName,
-                                String middleName,
-                                String lastName,
-                                long dob,
-                                Gender gender,
-                                Address address,
-                                Contact contact,
-                                LegalGuardian legalGuardian) {
-        super(studentId);
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.dob = dob;
-        this.gender = gender;
-        this.address = address;
-        this.contact = contact;
-        this.legalGuardian = legalGuardian;
-    }
 }
