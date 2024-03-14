@@ -13,6 +13,7 @@ class StudentRecordServiceTest {
     void validateCreateStudent_happy() {
         var createStudent = TestUtil.getCreateStudentRequest();
         var result = StudentRecordService.validateCreateStudent(createStudent);
+        System.out.println(result);
         assertTrue(result.isRight());
         assertTrue(result.get());
     }

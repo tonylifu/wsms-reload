@@ -17,7 +17,7 @@ public class TestUtil {
 
     public static CreateStudentRequest getCreateStudentRequest() {
         return CreateStudentRequest.builder()
-                .studentId("AABB2024")
+                .studentId("KSK/2024/1234")
                 .firstName("David")
                 .middleName("Owogoga")
                 .lastName("Lifu")
@@ -58,7 +58,7 @@ public class TestUtil {
 
     public static UpdateStudentRequest getUpdateStudentRequest() {
         return UpdateStudentRequest.builder()
-                .studentId("AABB2024")
+                .studentId("KSK/2024/1234")
                 .firstName("Joan")
                 .middleName("Owogbuo")
                 .lastName("Lifu")

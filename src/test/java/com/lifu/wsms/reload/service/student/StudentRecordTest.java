@@ -10,6 +10,7 @@ import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.util.TestUtil;
 import io.vavr.control.Either;
@@ -38,28 +39,29 @@ class StudentRecordTest {
         // Create Student
         Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
         assertTrue(createResponse.isRight());
-        var createResultMap = createResponse.get().getBody();
+        var createStudentResponse = createResponse.get();
         assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
-        assertEquals("AABB2024", createResultMap.get("studentId"));
+        var student = createStudentResponse.getBody();
+        assertEquals("KSK/2024/1234", student.get("studentId").asText());
 
         // Read Student
         Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("AABB2024");
         assertTrue(readResponse.isRight());
-        var readResultMap = readResponse.get().getBody();
+        var readStudentResponse = readResponse.get().getBody();
         assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
-        assertEquals("AABB2024", readResultMap.get("studentId"));
-        assertEquals("David", readResultMap.get("firstName"));
+        assertEquals("KSK/2024/1234", readStudentResponse.get("studentId").asText());
+        assertEquals("David", readStudentResponse.get("firstName").asText());
 
         // Update Student
         var updateStudentRequest = getUpdateStudentRequest();
         Either<FailureResponse, SuccessResponse> updateResponse = studentService.updateStudent(updateStudentRequest);
         assertFalse(updateResponse.isLeft());
-        var updateResultMap = updateResponse.get().getBody();
-        assertEquals("AABB2024", updateResultMap.get("studentId"));
-        assertEquals("Joan", readResultMap.get("firstName"));
+        var updateResult = updateResponse.get().getBody();
+        assertEquals("KSK/2024/1234", updateResult.get("studentId").asText());
+        assertEquals("Joan", updateResult.get("firstName").asText());
 
         // Delete Student
-        ApiResponse deleteStudent = studentService.deleteStudent("AABB2024");
+        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
         assertFalse(deleteStudent.isError());
     }
 
@@ -75,9 +77,7 @@ class StudentRecordTest {
         // Create Student
         Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
         assertTrue(createResponse.isLeft());
-        var createResultMap = createResponse.get().getBody();
-        assertEquals(HttpStatus.BAD_REQUEST, createResponse.get().getApiResponse().getHttpStatusCode());
-        assertNull(createResultMap.get("studentId"));
+        assertEquals(HttpStatus.BAD_REQUEST, createResponse.getLeft().getApiResponse().getHttpStatusCode());
     }
 
     private UpdateStudentRequest getUpdateStudentRequest() {

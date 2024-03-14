@@ -13,6 +13,24 @@ public class AppUtil {
 
     // Pattern object for compiling the regular expression
     private static final Pattern STUDENT_ID_REGEX = Pattern.compile(STUDENT_ID_PATTERN);
+    public static final String BAD_REQUEST_CODE = "400";
+    public static final String FAILED_AUTHENTICATION_CODE = "401";
+    public static final String BAD_REQUEST_INVALID_PARAMS_CODE = "402";
+    public static final String FAILED_AUTHORIZATION_CODE = "403";
+    public static final String RESOURCE_NOT_FOUND_CODE = "404";
+    //Application Specific Errors
+    //Success
+    public static final String TRANSACTION_OKAY_CODE = "000";
+    public static final String TRANSACTION_CREATED_CODE = "001";
+    public static final String TRANSACTION_SUCCESS_CODE = "003";
+
+    //Errors
+    public static final String INVALID_STUDENT_ID_CODE = "900";
+    public static final String MISSING_NAMES_CODE = "901";
+    public static final String INVALID_DOB_CODE = "902";
+    //Data Persistence
+    public static final String DATA_PERSISTENCE_ERROR = "950";
+    public static final String UNKNOWN_ERROR_CODE = "999";
 
     private AppUtil(){}
 
