@@ -11,6 +11,7 @@ import io.vavr.control.Either;
 public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
+        var validationResult = StudentRecordService.validateCreateStudent(createStudentRequest);
         return null;
     }
 

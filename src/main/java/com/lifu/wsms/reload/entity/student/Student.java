@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.entity;
+package com.lifu.wsms.reload.entity.student;
 
 import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "students")
+@Table(name = "student")
 @Data
 public class Student {
     @Id
@@ -47,4 +47,18 @@ public class Student {
     //@Embedded
     @JdbcTypeCode(SqlTypes.JSON)
     private LegalGuardian legalGuardian;
+
+    @Column(nullable = false)
+    private String currentGrade;
+
+    @Column(nullable = false)
+    private boolean isDisabled;
+
+    private String disabilityDetail;
+
+    @Column(nullable = false)
+    private LocalDate createdAt;
+
+    @Column(nullable = false)
+    private LocalDate lastUpdateAt;
 }

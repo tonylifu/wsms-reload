@@ -1,6 +1,6 @@
 package com.lifu.wsms.reload.repository;
 
-import com.lifu.wsms.reload.entity.Student;
+import com.lifu.wsms.reload.entity.student.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -2,7 +2,7 @@ package com.lifu.wsms.reload.mapper;
 
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.dto.response.student.StudentResponse;
-import com.lifu.wsms.reload.entity.Student;
+import com.lifu.wsms.reload.entity.student.Student;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
