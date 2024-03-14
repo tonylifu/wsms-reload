@@ -23,4 +23,6 @@ public class UpdateStudentRequest {
     private Address address;
     private Contact contact;
     private LegalGuardian legalGuardian;
+    private String currentGrade;
+    private boolean isDisabled;
 }

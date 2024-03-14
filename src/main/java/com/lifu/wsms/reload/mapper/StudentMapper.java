@@ -15,8 +15,8 @@ public interface StudentMapper {
     StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "currentGrade", ignore = true)
-    @Mapping(target = "disabled", ignore = true)
+//    @Mapping(target = "currentGrade", ignore = true)
+//    @Mapping(target = "isDisabled", ignore = true)
     @Mapping(target = "disabilityDetail", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUpdateAt", ignore = true)

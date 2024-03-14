@@ -29,7 +29,7 @@ public class AppUtil {
     public static final String MISSING_NAMES_CODE = "901";
     public static final String INVALID_DOB_CODE = "902";
     //Data Persistence
-    public static final String DATA_PERSISTENCE_ERROR = "950";
+    public static final String DATA_PERSISTENCE_ERROR_CODE = "950";
     public static final String UNKNOWN_ERROR_CODE = "999";
 
     private AppUtil(){}
