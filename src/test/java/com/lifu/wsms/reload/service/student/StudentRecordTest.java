@@ -79,27 +79,9 @@ class StudentRecordTest {
         //TODO delete a non existent student
     }
 
-//    @Test
-//    void findStudent() {
-//        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("KSK/2024/1234");
-//        assertTrue(readResponse.isRight());
-//        var readStudentResponse = readResponse.get().getBody();
-//        assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
-//        assertEquals("KSK/2024/1234", readStudentResponse.get("studentId").asText());
-//        assertEquals("David", readStudentResponse.get("firstName").asText());
-//    }
-
     @Test
     void updateStudent() {
     }
-
-//    @Test
-//    void deleteStudent() {
-//        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
-//        System.out.println(deleteStudent.getResponseMessage());
-//        assertFalse(deleteStudent.isError());
-//        assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
-//    }
 
     private UpdateStudentRequest getUpdateStudentRequest() {
         return TestUtil.getUpdateStudentRequest();
