@@ -1,24 +1,17 @@
 package com.lifu.wsms.reload.service.student;
 
-import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.StudentService;
-import com.lifu.wsms.reload.dto.Address;
-import com.lifu.wsms.reload.dto.Contact;
-import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
-import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.util.TestUtil;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,29 +31,31 @@ class StudentRecordTest {
         // Create Student
         Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
         assertTrue(createResponse.isRight());
-        var createResultMap = createResponse.get().getBody();
+        var createStudentResponse = createResponse.get();
         assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
-        assertEquals("AABB2024", createResultMap.get("studentId"));
+        var student = createStudentResponse.getBody();
+        assertEquals("KSK/2024/1234", student.get("studentId").asText());
 
         // Read Student
-        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("AABB2024");
+        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("KSK/2024/1234");
         assertTrue(readResponse.isRight());
-        var readResultMap = readResponse.get().getBody();
+        var readStudentResponse = readResponse.get().getBody();
         assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
-        assertEquals("AABB2024", readResultMap.get("studentId"));
-        assertEquals("David", readResultMap.get("firstName"));
+        assertEquals("KSK/2024/1234", readStudentResponse.get("studentId").asText());
+        assertEquals("David", readStudentResponse.get("firstName").asText());
 
         // Update Student
         var updateStudentRequest = getUpdateStudentRequest();
         Either<FailureResponse, SuccessResponse> updateResponse = studentService.updateStudent(updateStudentRequest);
         assertFalse(updateResponse.isLeft());
-        var updateResultMap = updateResponse.get().getBody();
-        assertEquals("AABB2024", updateResultMap.get("studentId"));
-        assertEquals("Joan", readResultMap.get("firstName"));
+        var updateResult = updateResponse.get().getBody();
+        assertEquals("KSK/2024/1234", updateResult.get("studentId").asText());
+        assertEquals("Joan", updateResult.get("firstName").asText());
 
         // Delete Student
-        ApiResponse deleteStudent = studentService.deleteStudent("AABB2024");
+        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
         assertFalse(deleteStudent.isError());
+        assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
     }
 
     /**
@@ -75,50 +70,24 @@ class StudentRecordTest {
         // Create Student
         Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
         assertTrue(createResponse.isLeft());
-        var createResultMap = createResponse.get().getBody();
-        assertEquals(HttpStatus.BAD_REQUEST, createResponse.get().getApiResponse().getHttpStatusCode());
-        assertNull(createResultMap.get("studentId"));
+        assertEquals(HttpStatus.BAD_REQUEST, createResponse.getLeft().getApiResponse().getHttpStatusCode());
+
+        //TODO query a non-existent student
+
+        //TODO update a non-existent student
+
+        //TODO delete a non existent student
+    }
+
+    @Test
+    void updateStudent() {
     }
 
     private UpdateStudentRequest getUpdateStudentRequest() {
-        return UpdateStudentRequest.builder()
-                .studentId("AABB2024")
-                .firstName("Joan")
-                .middleName("Owogbuo")
-                .lastName("Lifu")
-                .dob(AppUtil.convertLocalDateToLong(LocalDate.of(2011,6,13)))
-                .gender(Gender.FEMALE)
-                .address(Address.builder()
-                        .houseNumber("21")
-                        .streetName("Lyon Crescent")
-                        .area("Stirling")
-                        .country("United Kingdom")
-                        .build())
-                .contact(Contact.builder()
-                        .email("joanlifu@gmail.com")
-                        .mobilePhone("+447766433489")
-                        .telephone("013240000000")
-                        .build())
-                .legalGuardian(LegalGuardian.builder()
-                        .isBiologicalParentListed(Boolean.TRUE)
-                        .mother("Ladi")
-                        .motherContactInformation(Contact.builder()
-                                .email("ladi@gmail.com")
-                                .mobilePhone("+447766433489")
-                                .telephone("013240000000")
-                                .build())
-                        .father("Ohiero")
-                        .fatherContactInformation(Contact.builder()
-                                .email("ohiero@gmail.com")
-                                .mobilePhone("+447766433489")
-                                .telephone("013240000000")
-                                .build())
-                        .build())
-                .build();
+        return TestUtil.getUpdateStudentRequest();
     }
 
     private CreateStudentRequest getCreateStudentRequest() {
         return TestUtil.getCreateStudentRequest();
     }
-
 }

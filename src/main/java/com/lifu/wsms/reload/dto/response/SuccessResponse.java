@@ -1,5 +1,6 @@
 package com.lifu.wsms.reload.dto.response;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,6 @@ import java.util.Map;
 @Setter
 @Builder
 public class SuccessResponse {
-    private final Map<String, Object> body = new HashMap<>();
+    private JsonNode body;
     private ApiResponse apiResponse;
 }

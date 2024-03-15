@@ -13,11 +13,4 @@ public class ApiResponse {
     private String responseCode;
     private HttpStatus httpStatusCode;
     private boolean isError;
-
-    public ApiResponse(String responseMessage, String responseCode, HttpStatus httpStatusCode, boolean isError) {
-        this.responseMessage = responseMessage;
-        this.responseCode = responseCode;
-        this.httpStatusCode = httpStatusCode;
-        this.isError = isError;
-    }
 }

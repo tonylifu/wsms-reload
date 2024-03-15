@@ -43,4 +43,16 @@ public interface StudentService {
      * @return An API response indicating the result of the deletion.
      */
     ApiResponse deleteStudent(String studentId);
+
+    /**
+     * Retrieves a paginated list of all students from the database.
+     *
+     * @param pageNumber The page number of the results to retrieve.
+     * @param pageSize   The number of students per page.
+     * @return An {@code Either} representing the result of the operation. If the operation is successful,
+     *         returns a {@code SuccessResponse} containing the paginated list of students. If an error occurs
+     *         during the operation, returns a {@code FailureResponse} containing information about the error.
+     *         The failure response may include an error code, error message, and HTTP status code.
+     */
+    Either<FailureResponse, SuccessResponse> findAllStudents(int pageNumber, int pageSize);
 }
