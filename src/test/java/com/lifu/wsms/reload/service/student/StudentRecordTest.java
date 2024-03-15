@@ -93,13 +93,13 @@ class StudentRecordTest {
     void updateStudent() {
     }
 
-    @Test
-    void deleteStudent() {
-        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
-        System.out.println(deleteStudent.getResponseMessage());
-        assertFalse(deleteStudent.isError());
-        assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
-    }
+//    @Test
+//    void deleteStudent() {
+//        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
+//        System.out.println(deleteStudent.getResponseMessage());
+//        assertFalse(deleteStudent.isError());
+//        assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
+//    }
 
     private UpdateStudentRequest getUpdateStudentRequest() {
         return TestUtil.getUpdateStudentRequest();

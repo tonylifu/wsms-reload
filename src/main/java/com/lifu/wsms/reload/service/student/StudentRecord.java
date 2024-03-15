@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +33,8 @@ public class StudentRecord implements StudentService {
     private final StudentRepository studentRepository;
     private final AccountRepository accountRepository;
     private final ObjectMapper objectMapper;
+
+    @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
         try {
@@ -132,10 +135,12 @@ public class StudentRecord implements StudentService {
         }
     }
 
+    @Transactional
     @Override
     public ApiResponse deleteStudent(String studentId) {
         try {
             studentRepository.deleteByStudentId(studentId);
+            accountRepository.deleteByStudentId(studentId);
             return ApiResponse.builder()
                     .isError(false)
                     .httpStatusCode(HttpStatus.NO_CONTENT)
@@ -151,5 +156,10 @@ public class StudentRecord implements StudentService {
                     .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
                     .build();
         }
+    }
+
+    @Override
+    public Either<FailureResponse, SuccessResponse> findAllStudents(int pageNumber, int pageSize) {
+        return null;
     }
 }
