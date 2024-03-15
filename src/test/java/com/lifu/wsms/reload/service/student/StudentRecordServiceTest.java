@@ -47,10 +47,14 @@ class StudentRecordServiceTest {
     }
 
     @Test
-    void validateStudentId_happy() {
-    }
-
-    @Test
-    void validateStudentId_sad() {
+    void populateStudentForUpdate() {
+        var updateStudent = TestUtil.getUpdateStudentRequest();
+        var student = TestUtil.getStudent();
+        student.setFirstName(null);
+        assertNull(student.getFirstName());
+        assertNotNull(updateStudent.getFirstName());
+        var result = StudentRecordService.populateStudentForUpdate(student, updateStudent);
+        assertNotNull(result.getFirstName());
+        assertEquals(updateStudent.getFirstName(), result.getFirstName());
     }
 }

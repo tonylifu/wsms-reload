@@ -30,7 +30,7 @@ public class Student {
     private String lastName;
 
     @Column(nullable = false)
-    private LocalDate dob;
+    private long dob;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -57,8 +57,8 @@ public class Student {
     private String disabilityDetail;
 
     @Column(nullable = false)
-    private LocalDate createdAt;
+    private long createdAt;
 
     @Column(nullable = false)
-    private LocalDate lastUpdateAt;
+    private long lastUpdateAt;
 }

@@ -23,6 +23,7 @@ public class AppUtil {
     public static final String TRANSACTION_OKAY_CODE = "000";
     public static final String TRANSACTION_CREATED_CODE = "001";
     public static final String TRANSACTION_SUCCESS_CODE = "003";
+    public static final String TRANSACTION_UPDATED_CODE = "004";
 
     //Errors
     public static final String INVALID_STUDENT_ID_CODE = "900";

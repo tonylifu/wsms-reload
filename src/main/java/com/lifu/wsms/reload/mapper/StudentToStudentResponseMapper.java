@@ -13,11 +13,11 @@ import java.time.LocalDate;
 @Mapper
 public interface StudentToStudentResponseMapper {
     StudentToStudentResponseMapper INSTANCE = Mappers.getMapper(StudentToStudentResponseMapper.class);
-    @Mapping(target = "dob", source = "dob", qualifiedByName = "localDateToLong")
+    //@Mapping(target = "dob", source = "dob", qualifiedByName = "localDateToLong")
     StudentResponse toStudentResponse(Student student);
 
-    @Named("localDateToLong")
-    default long mapLocalDateToLong(LocalDate dob) {
-        return AppUtil.convertLocalDateToLong(dob);
-    }
+//    @Named("localDateToLong")
+//    default long mapLocalDateToLong(LocalDate dob) {
+//        return AppUtil.convertLocalDateToLong(dob);
+//    }
 }

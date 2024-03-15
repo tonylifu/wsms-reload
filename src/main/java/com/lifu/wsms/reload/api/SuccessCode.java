@@ -10,7 +10,7 @@ import static com.lifu.wsms.reload.api.AppUtil.*;
 public enum SuccessCode {
     TRANSACTION_CREATED(TRANSACTION_CREATED_CODE, "Insertion was successful"),
     TRANSACTION_OKAY(TRANSACTION_OKAY_CODE, "Transaction okay"),
-
+    TRANSACTION_UPDATED(TRANSACTION_UPDATED_CODE, "Update was successful"),
     SUCCESS(TRANSACTION_SUCCESS_CODE, "Successful");
 
     private static final Map<String, String> codeToMessageMap = new HashMap<>();

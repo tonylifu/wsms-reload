@@ -23,5 +23,5 @@ public class StudentResponse {
     private Contact contact;
     private LegalGuardian legalGuardian;
     private String currentGrade;
-    private boolean isDisabled;
+    private boolean disabled;
 }

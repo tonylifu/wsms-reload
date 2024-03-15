@@ -15,16 +15,14 @@ public interface StudentMapper {
     StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
 
     @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "currentGrade", ignore = true)
-//    @Mapping(target = "isDisabled", ignore = true)
     @Mapping(target = "disabilityDetail", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUpdateAt", ignore = true)
-    @Mapping(target = "dob", source = "dob", dateFormat = "yyyyMMdd", qualifiedByName = "longToLocalDate")
+    //@Mapping(target = "dob", source = "dob", dateFormat = "yyyyMMdd", qualifiedByName = "longToLocalDate")
     Student toStudent(CreateStudentRequest createStudentRequest);
 
-    @Named("longToLocalDate")
-    default LocalDate mapLongToLocalDate(long dob) {
-        return AppUtil.convertLongToLocalDate(dob);
-    }
+//    @Named("longToLocalDate")
+//    default LocalDate mapLongToLocalDate(long dob) {
+//        return AppUtil.convertLongToLocalDate(dob);
+//    }
 }
