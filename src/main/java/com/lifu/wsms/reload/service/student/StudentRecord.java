@@ -12,13 +12,13 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
 import com.lifu.wsms.reload.mapper.StudentMapper;
-import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,6 +160,28 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> findAllStudents(int pageNumber, int pageSize) {
-        return null;
+        try {
+            return Either.right(
+                    SuccessResponse.builder()
+                            .body(AppUtil.convertListToJsonNode(studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()))
+                            .apiResponse(ApiResponse.builder()
+                                    .isError(false)
+                                    .httpStatusCode(HttpStatus.OK)
+                                    .responseCode(TRANSACTION_SUCCESS_CODE)
+                                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_SUCCESS_CODE))
+                                    .build())
+                            .build()
+            );
+        } catch (DataAccessException e) {
+            log.error("Fetch students request error => {}", e.getMessage());
+            return Either.left(FailureResponse.builder()
+                    .apiResponse(ApiResponse.builder()
+                            .isError(true)
+                            .httpStatusCode(HttpStatus.NOT_FOUND)
+                            .responseCode(RESOURCE_NOT_FOUND_CODE)
+                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
+                            .build())
+                    .build());
+        }
     }
 }

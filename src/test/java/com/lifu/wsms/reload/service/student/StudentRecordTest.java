@@ -79,15 +79,15 @@ class StudentRecordTest {
         //TODO delete a non existent student
     }
 
-    @Test
-    void updateStudent() {
-    }
-
     private UpdateStudentRequest getUpdateStudentRequest() {
         return TestUtil.getUpdateStudentRequest();
     }
 
     private CreateStudentRequest getCreateStudentRequest() {
         return TestUtil.getCreateStudentRequest();
+    }
+
+    @Test
+    void findAllStudents() {
     }
 }
