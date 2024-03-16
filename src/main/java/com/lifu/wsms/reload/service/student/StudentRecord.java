@@ -116,7 +116,7 @@ public class StudentRecord implements StudentService {
                                 .orElseThrow(() -> new RuntimeException("Student record update failed"));
                     })
                     .map(student -> SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(student))
+                            .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
                             .apiResponse(ApiResponse.builder()
                                     .httpStatusCode(HttpStatus.OK)
                                     .responseCode(TRANSACTION_UPDATED_CODE)

@@ -17,7 +17,7 @@ public class StudentResponse {
     private String firstName;
     private String middleName;
     private String lastName;
-    private long dob;
+    private String dob;
     private Gender gender;
     private Address address;
     private Contact contact;
