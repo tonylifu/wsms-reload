@@ -5,7 +5,10 @@ import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import io.vavr.control.Either;
+
+import java.util.List;
 
 /**
  * This interface defines all interactions with the API related to the Student model.

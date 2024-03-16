@@ -1,21 +1,29 @@
 package com.lifu.wsms.reload.service.student;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.StudentService;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import com.lifu.wsms.reload.util.TestUtil;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class StudentRecordTest {
     @Autowired
     private StudentService studentService;
@@ -23,6 +31,7 @@ class StudentRecordTest {
     /**
      * Happy path
      */
+    @Transactional
     @Test
     void createReadUpdateAndDelete_Student() {
         // Create Student Request Object
@@ -80,7 +89,37 @@ class StudentRecordTest {
     }
 
     @Test
-    void updateStudent() {
+    void findAllStudents() {
+        //students KSK/2024/0001 - KSK/2024/0020
+        int pageNumber = 1; //pageNumber is 0 index based
+        int pageSize = 5;
+        List<CreateStudentRequest> twentyCreateStudentRequests = TestUtil.getTwentyCreateStudentsRequests();
+
+        twentyCreateStudentRequests.forEach(createStudentRequest -> {
+            Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
+            assertTrue(createResponse.isRight());
+            assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
+        });
+
+        //assertions
+        int firstStudentIndex = pageSize * pageNumber + 1;
+        String firstStudentId = "KSK/2024/" + String.format("%04d", firstStudentIndex);
+        Either<FailureResponse, SuccessResponse> allStudents = studentService.findAllStudents(pageNumber, pageSize);
+        assertTrue(allStudents.isRight());
+        Either<FailureResponse, ArrayNode> arrayNodesEither = allStudents
+                .map(successResponse -> (ArrayNode) successResponse.getBody());
+        ArrayNode arrayNodes = arrayNodesEither.get();
+        List<StudentResponse> students = AppUtil.convertJsonNodeToList(arrayNodes, StudentResponse.class);
+        assertEquals(pageSize, students.size());
+        assertEquals(firstStudentId, students.getFirst().getStudentId());
+
+        //clean up
+        twentyCreateStudentRequests.forEach(createStudentRequest -> {
+            var studentId = createStudentRequest.getStudentId();
+            ApiResponse deleteStudent = studentService.deleteStudent(studentId);
+            assertFalse(deleteStudent.isError());
+            assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
+        });
     }
 
     private UpdateStudentRequest getUpdateStudentRequest() {
