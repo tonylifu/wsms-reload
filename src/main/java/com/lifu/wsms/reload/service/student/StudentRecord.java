@@ -56,7 +56,7 @@ public class StudentRecord implements StudentService {
                         return createdStudent;
                     })
                     .map(student -> SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(student))
+                            .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
                             .apiResponse(ApiResponse.builder()
                                     .httpStatusCode(HttpStatus.CREATED)
                                     .responseCode(TRANSACTION_CREATED_CODE)
@@ -83,7 +83,7 @@ public class StudentRecord implements StudentService {
             return Either.right(
                     studentRepository.findByStudentId(studentId)
                             .map(student -> SuccessResponse.builder()
-                                    .body(objectMapper.valueToTree(student))
+                                    .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
                                     .apiResponse(ApiResponse.builder()
                                             .httpStatusCode(HttpStatus.OK)
                                             .responseCode(TRANSACTION_OKAY_CODE)
