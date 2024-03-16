@@ -73,4 +73,22 @@ class AppUtilTest {
         assertEquals(jsonNode.get(3), studentsJsonNode.get(3));
     }
 
+    @Test
+    void isValidLocalDateString() {
+        assertTrue(AppUtil.isValidLocalDateString("2010-01-01"));
+        assertFalse(AppUtil.isValidLocalDateString("01/01/2010"));
+    }
+
+    @Test
+    void isParseableLocalDateString() {
+        assertTrue(AppUtil.isParseableLocalDateString("2010-01-01"));
+        assertFalse(AppUtil.isParseableLocalDateString("01/01/2010"));
+    }
+
+    @Test
+    void parseToLocalDate() {
+        LocalDate localDate = LocalDate.of(2010, 1, 1);
+        LocalDate parsedDate = AppUtil.parseToLocalDate("2010-01-01");
+        assertEquals(localDate, parsedDate);
+    }
 }

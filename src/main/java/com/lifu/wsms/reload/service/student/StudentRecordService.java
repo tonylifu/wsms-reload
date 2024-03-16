@@ -53,7 +53,8 @@ public class StudentRecordService {
                     .build());
         }
 
-        if (!(createStudentRequest.getDob() > 0)) {
+        if (!(AppUtil.isValidLocalDateString(createStudentRequest.getDob()))
+                || !(AppUtil.isParseableLocalDateString(createStudentRequest.getDob()))) {
             return Either.left(FailureResponse.builder()
                     .apiResponse(ApiResponse.builder()
                             .isError(true)
@@ -140,8 +141,9 @@ public class StudentRecordService {
         if (updateStudentRequest.getLastName() != null) {
             student.setLastName(updateStudentRequest.getLastName());
         }
-        if (updateStudentRequest.getDob() > 0) {
-            student.setDob(updateStudentRequest.getDob());
+        if (AppUtil.isValidLocalDateString(updateStudentRequest.getDob())
+                || AppUtil.isParseableLocalDateString(updateStudentRequest.getDob())) {
+            student.setDob(AppUtil.convertLocalDateToLong(AppUtil.parseToLocalDate(updateStudentRequest.getDob())));
         }
         if (updateStudentRequest.getGender() != null) {
             student.setGender(updateStudentRequest.getGender());

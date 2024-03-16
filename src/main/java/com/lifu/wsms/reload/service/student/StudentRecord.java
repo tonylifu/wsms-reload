@@ -11,7 +11,7 @@ import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
-import com.lifu.wsms.reload.mapper.StudentMapper;
+import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
@@ -42,7 +42,7 @@ public class StudentRecord implements StudentService {
         try {
             return StudentRecordService.validateCreateStudent(createStudentRequest)
                     .map(result -> {
-                        var student = StudentMapper.INSTANCE.toStudent(createStudentRequest);
+                        var student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudentRequest);
                         student.setCreatedAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
                         student.setLastUpdateAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
                         var createdStudent = studentRepository.save(student);

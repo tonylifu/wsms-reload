@@ -11,18 +11,18 @@ import org.mapstruct.factory.Mappers;
 import java.time.LocalDate;
 
 @Mapper
-public interface StudentMapper {
-    StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
+public interface CreateStudentRequestToStudentMapper {
+    CreateStudentRequestToStudentMapper INSTANCE = Mappers.getMapper(CreateStudentRequestToStudentMapper.class);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "disabilityDetail", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUpdateAt", ignore = true)
-    //@Mapping(target = "dob", source = "dob", dateFormat = "yyyyMMdd", qualifiedByName = "longToLocalDate")
+    @Mapping(target = "dob", source = "dob", dateFormat = "yyyy-MM-dd", qualifiedByName = "longToLocalDate")
     Student toStudent(CreateStudentRequest createStudentRequest);
 
-//    @Named("longToLocalDate")
-//    default LocalDate mapLongToLocalDate(long dob) {
-//        return AppUtil.convertLongToLocalDate(dob);
-//    }
+    @Named("longToLocalDate")
+    default long mapLongToLocalDate(String dob) {
+        return AppUtil.convertLocalDateToLong(AppUtil.parseToLocalDate(dob));
+    }
 }

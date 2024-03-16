@@ -12,7 +12,7 @@ class StudentMapperTest {
     @Test
     void toStudent() {
         var createStudent = TestUtil.getCreateStudentRequest();
-        var student = StudentMapper.INSTANCE.toStudent(createStudent);
+        var student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudent);
         assertEquals(createStudent.getStudentId(), student.getStudentId());
         assertEquals(createStudent.getFirstName(), student.getFirstName());
         assertEquals(createStudent.getAddress().getHouseNumber(), student.getAddress().getHouseNumber());

@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -21,6 +23,8 @@ public class AppUtil {
 
     // Pattern object for compiling the regular expression
     private static final Pattern STUDENT_ID_REGEX = Pattern.compile(STUDENT_ID_PATTERN);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final String DATE_FORMAT_REGEX = "\\d{4}-\\d{2}-\\d{2}";
     public static final String BAD_REQUEST_CODE = "400";
     public static final String FAILED_AUTHENTICATION_CODE = "401";
     public static final String BAD_REQUEST_INVALID_PARAMS_CODE = "402";
@@ -112,4 +116,41 @@ public class AppUtil {
     public static JsonNode convertListToJsonNode(List<?> list) {
         return objectMapper.<ArrayNode>valueToTree(list);
     }
+
+    /**
+     * Checks if a string represents a valid LocalDate in the format 'yyyy-MM-dd'.
+     *
+     * @param date The string to check for validity.
+     * @return {@code true} if the string represents a valid LocalDate, {@code false} otherwise.
+     */
+    public static boolean isValidLocalDateString(String date) {
+        return Pattern.matches(DATE_FORMAT_REGEX, date);
+    }
+
+    /**
+     * Checks if a string is parseable as a LocalDate object using the specified date format.
+     *
+     * @param dateString The string to check for parseability.
+     * @return {@code true} if the string is parseable as a LocalDate, {@code false} otherwise.
+     */
+    public static boolean isParseableLocalDateString(String dateString) {
+        try {
+            var date = LocalDate.parse(dateString, DATE_FORMATTER);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Parses a string representing a date into a LocalDate object using the specified date format.
+     *
+     * @param dateString The string representing the date to parse.
+     * @return The LocalDate object parsed from the string.
+     * @throws DateTimeParseException If the string cannot be parsed into a LocalDate.
+     */
+    public static LocalDate parseToLocalDate(String dateString) throws DateTimeParseException {
+        return LocalDate.parse(dateString, DATE_FORMATTER);
+    }
+
 }
