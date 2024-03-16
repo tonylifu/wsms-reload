@@ -12,6 +12,7 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
 import com.lifu.wsms.reload.mapper.StudentMapper;
+import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
 import io.vavr.control.Either;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
 
@@ -163,8 +165,12 @@ public class StudentRecord implements StudentService {
         try {
             return Either.right(
                     SuccessResponse.builder()
-                            .body(AppUtil.convertListToJsonNode(studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()))
-                            .apiResponse(ApiResponse.builder()
+                            .body(AppUtil.convertListToJsonNode(
+                                    studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()
+                                            .stream()
+                                            .map(StudentToStudentResponseMapper.INSTANCE::toStudentResponse)
+                                            .collect(Collectors.toList())
+                            )).apiResponse(ApiResponse.builder()
                                     .isError(false)
                                     .httpStatusCode(HttpStatus.OK)
                                     .responseCode(TRANSACTION_SUCCESS_CODE)

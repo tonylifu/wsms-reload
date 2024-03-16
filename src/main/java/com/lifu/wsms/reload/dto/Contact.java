@@ -1,12 +1,12 @@
 package com.lifu.wsms.reload.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Contact {
     private String email;
     private String mobilePhone;
