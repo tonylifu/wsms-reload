@@ -13,6 +13,8 @@ public class StudentController {
     private final StudentService studentService;
     public static final String STUDENT_PATH = "/api/v1/student";
     public static final String STUDENT_PATH_ID = STUDENT_PATH + "/{studentId}";
+    public static final String STUDENT_ACCOUNT_PATH = "/api/v1/account";
+    public static final String STUDENT_ACCOUNT_PATH_ID = STUDENT_ACCOUNT_PATH + "/{studentId}";
 
     @PostMapping(STUDENT_PATH)
     public ResponseEntity<?> createStudent(@RequestBody final CreateStudentRequest studentRequest) {
@@ -46,7 +48,6 @@ public class StudentController {
 
     @GetMapping(STUDENT_PATH_ID)
     public ResponseEntity<?> findStudent(@PathVariable("studentId") String studentId) {
-        System.out.println("STUDENTE => "+ studentId);
         return studentService.findStudent(studentId)
                 .fold(
                         failureResponse -> ResponseEntity
@@ -66,5 +67,50 @@ public class StudentController {
         return ResponseEntity
                 .status(deleteResponse.getHttpStatusCode())
                 .body(deleteResponse);
+    }
+
+    @GetMapping(STUDENT_PATH)
+    public ResponseEntity<?> findAllStudents(@RequestParam(defaultValue = "0") int pageNumber,
+                                             @RequestParam(defaultValue = "10") int pageSize) {
+        return studentService.findAllStudents(pageNumber, pageSize)
+                .fold(
+                        failureResponse -> ResponseEntity
+                                .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .body(failureResponse),
+                        successResponse -> ResponseEntity
+                                .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .header("location", STUDENT_PATH)
+                                .body(successResponse)
+                );
+    }
+
+    @GetMapping(STUDENT_ACCOUNT_PATH_ID)
+    public ResponseEntity<?> findStudentAccountBalance(@PathVariable("studentId") String studentId) {
+        return studentService.findStudentAndAccount(studentId)
+                .fold(
+                        failureResponse -> ResponseEntity
+                                .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .body(failureResponse),
+                        successResponse -> ResponseEntity
+                                .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .header("location", STUDENT_ACCOUNT_PATH +
+                                        successResponse.getBody().get("studentResponse").get("studentId"))
+                                .body(successResponse)
+                );
+    }
+
+    @GetMapping(STUDENT_ACCOUNT_PATH)
+    public ResponseEntity<?> findAllStudentsAndAccountBalances(@RequestParam(defaultValue = "0") int pageNumber,
+                                             @RequestParam(defaultValue = "10") int pageSize) {
+        return studentService.findAllStudentAndAccounts(pageNumber, pageSize)
+                .fold(
+                        failureResponse -> ResponseEntity
+                                .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .body(failureResponse),
+                        successResponse -> ResponseEntity
+                                .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .header("location", STUDENT_ACCOUNT_PATH)
+                                .body(successResponse)
+                );
     }
 }
