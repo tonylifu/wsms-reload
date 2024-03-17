@@ -10,6 +10,7 @@ import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
@@ -193,7 +194,37 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> findStudentAndAccount(String studentId) {
-        return null;
+        try {
+            return Either.right(
+                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId)
+                            .stream()
+                            .map(objects -> {
+                                StudentAccountBalanceResponse studentAccountBalanceResponse =
+                                        StudentRecordService.getStudentAccountBalanceResponseFromObjects(objects);
+                                return SuccessResponse.builder()
+                                        .body(objectMapper.valueToTree(studentAccountBalanceResponse))
+                                        .apiResponse(ApiResponse.builder()
+                                                .httpStatusCode(HttpStatus.OK)
+                                                .responseCode(TRANSACTION_OKAY_CODE)
+                                                .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_OKAY_CODE))
+                                                .isError(false)
+                                                .build())
+                                        .build();
+                            })
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("student and balance request failed"))
+            );
+        } catch (Exception e) {
+            log.error("Failed student balance request => {}", e.getMessage());
+            return Either.left(FailureResponse.builder()
+                    .apiResponse(ApiResponse.builder()
+                            .isError(true)
+                            .httpStatusCode(HttpStatus.NOT_FOUND)
+                            .responseCode(RESOURCE_NOT_FOUND_CODE)
+                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
+                            .build())
+                    .build());
+        }
     }
 
     @Override

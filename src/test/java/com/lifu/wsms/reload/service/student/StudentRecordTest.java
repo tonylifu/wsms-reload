@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -129,6 +130,38 @@ class StudentRecordTest {
         ArrayNode arrayEmptyNodes = arrayEmptyNodesEither.get();
         List<StudentResponse> emptyStudents = AppUtil.convertJsonNodeToList(arrayEmptyNodes, StudentResponse.class);
         assertEquals(0, emptyStudents.size());
+    }
+
+    @Test
+    void createStudent_findStudentAndAccount_andClean() {
+        // Create Student Request Object
+        var createStudentRequest = getCreateStudentRequest();
+
+        // Create Student
+        Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
+        assertTrue(createResponse.isRight());
+        var createStudentResponse = createResponse.get();
+        assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
+        var student = createStudentResponse.getBody();
+        assertEquals("KSK/2024/1234", student.get("studentId").asText());
+
+        // Read Student and Account
+        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudentAndAccount("KSK/2024/1234");
+        assertTrue(readResponse.isRight());
+        var readStudentResponse = readResponse.get().getBody();
+        assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
+        assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(readStudentResponse.get("accountBalance").doubleValue()));
+        assertEquals("KSK/2024/1234", readStudentResponse.get("studentResponse").get("studentId").asText());
+        assertEquals("David", readStudentResponse.get("studentResponse").get("firstName").asText());
+
+        // Delete Student
+        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
+        assertFalse(deleteStudent.isError());
+        assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
+    }
+
+    @Test
+    void findAllStudentAndAccounts() {
     }
 
     private UpdateStudentRequest getUpdateStudentRequest() {

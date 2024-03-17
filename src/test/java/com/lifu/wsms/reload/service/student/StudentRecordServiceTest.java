@@ -1,9 +1,13 @@
 package com.lifu.wsms.reload.service.student;
 
+import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
+import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.util.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,5 +60,17 @@ class StudentRecordServiceTest {
         var result = StudentRecordService.populateStudentForUpdate(student, updateStudent);
         assertNotNull(result.getFirstName());
         assertEquals(updateStudent.getFirstName(), result.getFirstName());
+    }
+
+    @Test
+    void getStudentAccountBalanceResponseFromObjects() {
+        var student = TestUtil.getStudent();
+        BigDecimal balance = BigDecimal.valueOf(4.55);
+        Object[] objects = {student, balance};
+        StudentAccountBalanceResponse studentAccountObject = StudentRecordService.getStudentAccountBalanceResponseFromObjects(objects);
+        String returnedStudentId = studentAccountObject.getStudentResponse().getStudentId();
+        BigDecimal returnedBalance = studentAccountObject.getAccountBalance();
+        assertEquals(student.getStudentId(), returnedStudentId);
+        assertEquals(balance, returnedBalance);
     }
 }

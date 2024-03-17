@@ -6,14 +6,20 @@ import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
+import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
+import com.lifu.wsms.reload.entity.finance.AccountBalance;
 import com.lifu.wsms.reload.entity.student.Student;
+import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import io.vavr.control.Either;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
 
+@Slf4j
 public class StudentRecordService {
     private StudentRecordService(){}
 
@@ -168,4 +174,29 @@ public class StudentRecordService {
         }
         return student;
     }
+
+    /**
+     * Constructs a StudentAccountBalanceResponse object from an array of objects containing a Student and an AccountBalance.
+     *
+     * @param objects an array of objects containing a Student and an AccountBalance
+     * @return a StudentAccountBalanceResponse object containing information about the student and their account balance
+     * @throws RuntimeException if the array of objects is null or if there is an error while casting objects to Student and AccountBalance
+     */
+    public static StudentAccountBalanceResponse getStudentAccountBalanceResponseFromObjects(Object[] objects) {
+        if (objects == null) {
+            throw new RuntimeException("The resource does not exist");
+        }
+        try {
+            Student student = (Student) objects[0];
+            BigDecimal accountBalance = (BigDecimal) objects[1];
+            return StudentAccountBalanceResponse.builder()
+                    .studentResponse(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student))
+                    .accountBalance(accountBalance)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error casting object to StudentAccountBalanceResponse: {}", e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 }
