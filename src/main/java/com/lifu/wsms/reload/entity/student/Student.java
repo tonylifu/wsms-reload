@@ -36,15 +36,12 @@ public class Student {
     @Column(nullable = false)
     private Gender gender;
 
-    //@Embedded
     @JdbcTypeCode(SqlTypes.JSON)
     private Address address;
 
-    //@Embedded
     @JdbcTypeCode(SqlTypes.JSON)
     private Contact contact;
 
-    //@Embedded
     @JdbcTypeCode(SqlTypes.JSON)
     private LegalGuardian legalGuardian;
 
@@ -61,4 +58,7 @@ public class Student {
 
     @Column(nullable = false)
     private long lastUpdateAt;
+
+    @Column(nullable = false)
+    private String actionBy;
 }

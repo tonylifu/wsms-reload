@@ -7,12 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class StudentMapperTest {
+class CreateStudentRequestToStudentMapperTest {
 
     @Test
     void toStudent() {
         var createStudent = TestUtil.getCreateStudentRequest();
-        var student = StudentMapper.INSTANCE.toStudent(createStudent);
+        var student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudent);
+        System.out.println(student);
         assertEquals(createStudent.getStudentId(), student.getStudentId());
         assertEquals(createStudent.getFirstName(), student.getFirstName());
         assertEquals(createStudent.getAddress().getHouseNumber(), student.getAddress().getHouseNumber());

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * This interface defines all interactions with the API related to the Student model.
  */
-public interface StudentService {
+public interface StudentService extends AccountService {
 
     /**
      * Creates a new student.

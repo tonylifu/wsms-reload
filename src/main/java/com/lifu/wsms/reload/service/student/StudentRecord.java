@@ -11,7 +11,7 @@ import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
-import com.lifu.wsms.reload.mapper.StudentMapper;
+import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
@@ -42,7 +42,7 @@ public class StudentRecord implements StudentService {
         try {
             return StudentRecordService.validateCreateStudent(createStudentRequest)
                     .map(result -> {
-                        var student = StudentMapper.INSTANCE.toStudent(createStudentRequest);
+                        var student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudentRequest);
                         student.setCreatedAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
                         student.setLastUpdateAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
                         var createdStudent = studentRepository.save(student);
@@ -56,7 +56,7 @@ public class StudentRecord implements StudentService {
                         return createdStudent;
                     })
                     .map(student -> SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(student))
+                            .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
                             .apiResponse(ApiResponse.builder()
                                     .httpStatusCode(HttpStatus.CREATED)
                                     .responseCode(TRANSACTION_CREATED_CODE)
@@ -83,7 +83,7 @@ public class StudentRecord implements StudentService {
             return Either.right(
                     studentRepository.findByStudentId(studentId)
                             .map(student -> SuccessResponse.builder()
-                                    .body(objectMapper.valueToTree(student))
+                                    .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
                                     .apiResponse(ApiResponse.builder()
                                             .httpStatusCode(HttpStatus.OK)
                                             .responseCode(TRANSACTION_OKAY_CODE)
@@ -116,7 +116,7 @@ public class StudentRecord implements StudentService {
                                 .orElseThrow(() -> new RuntimeException("Student record update failed"));
                     })
                     .map(student -> SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(student))
+                            .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
                             .apiResponse(ApiResponse.builder()
                                     .httpStatusCode(HttpStatus.OK)
                                     .responseCode(TRANSACTION_UPDATED_CODE)
@@ -189,5 +189,15 @@ public class StudentRecord implements StudentService {
                             .build())
                     .build());
         }
+    }
+
+    @Override
+    public Either<FailureResponse, SuccessResponse> findStudentAndAccount(String studentId) {
+        return null;
+    }
+
+    @Override
+    public Either<FailureResponse, SuccessResponse> findAllStudentAndAccounts(int pageNumber, int pageSize) {
+        return null;
     }
 }

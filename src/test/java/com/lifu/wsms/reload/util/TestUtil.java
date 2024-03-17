@@ -8,8 +8,7 @@ import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.enums.Gender;
-import com.lifu.wsms.reload.mapper.StudentMapper;
-import org.apache.catalina.LifecycleState;
+import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class TestUtil {
                 .firstName("David")
                 .middleName("Owogoga")
                 .lastName("Lifu")
-                .dob(AppUtil.convertLocalDateToLong(LocalDate.of(2010,1,1)))
+                .dob("2010-01-01")
                 .gender(Gender.MALE)
                 .currentGrade("SSS1/2024/1")
                 .isDisabled(false)
@@ -63,12 +62,12 @@ public class TestUtil {
     }
 
     /**
-     * Generates a {@link Student} object by mapping the values from a {@link CreateStudentRequest} object using the {@link StudentMapper}.
+     * Generates a {@link Student} object by mapping the values from a {@link CreateStudentRequest} object using the {@link CreateStudentRequestToStudentMapper}.
      *
      * @return A {@link Student} object populated with values from a predefined {@link CreateStudentRequest} object.
      */
     public static Student getStudent() {
-        return StudentMapper.INSTANCE.toStudent(getCreateStudentRequest());
+        return CreateStudentRequestToStudentMapper.INSTANCE.toStudent(getCreateStudentRequest());
     }
 
     /**
@@ -82,7 +81,7 @@ public class TestUtil {
                 .firstName("Joan")
                 .middleName("Owogbuo")
                 .lastName("Lifu")
-                .dob(AppUtil.convertLocalDateToLong(LocalDate.of(2011,6,13)))
+                .dob("2010-01-01")
                 .gender(Gender.FEMALE)
                 .currentGrade("SSS1/2024/2")
                 .isDisabled(false)

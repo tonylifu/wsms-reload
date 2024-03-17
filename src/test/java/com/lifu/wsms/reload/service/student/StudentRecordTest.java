@@ -120,6 +120,15 @@ class StudentRecordTest {
             assertFalse(deleteStudent.isError());
             assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
         });
+
+        //student list should be zero after clean up
+        Either<FailureResponse, SuccessResponse> allEmptyStudents = studentService.findAllStudents(pageNumber, pageSize);
+        assertTrue(allEmptyStudents.isRight());
+        Either<FailureResponse, ArrayNode> arrayEmptyNodesEither = allEmptyStudents
+                .map(successResponse -> (ArrayNode) successResponse.getBody());
+        ArrayNode arrayEmptyNodes = arrayEmptyNodesEither.get();
+        List<StudentResponse> emptyStudents = AppUtil.convertJsonNodeToList(arrayEmptyNodes, StudentResponse.class);
+        assertEquals(0, emptyStudents.size());
     }
 
     private UpdateStudentRequest getUpdateStudentRequest() {
