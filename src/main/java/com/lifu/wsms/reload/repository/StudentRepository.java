@@ -27,5 +27,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     List<Object[]> findStudentAndAccountBalanceByStudentId(@Param("studentId") String studentId);
 
     @Query("SELECT s, a.balance FROM Student s JOIN AccountBalance a ON s.studentId = a.studentId")
-    List<Object[]> findAllStudentsAndAccountBalances();
+    Page<Object[]> findAllStudentsAndAccountBalances(Pageable pageable);
 }
