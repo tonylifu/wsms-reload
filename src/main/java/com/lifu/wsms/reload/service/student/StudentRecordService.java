@@ -12,10 +12,13 @@ import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
 
@@ -197,6 +200,26 @@ public class StudentRecordService {
             log.error("Error casting object to StudentAccountBalanceResponse: {}", e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    /**
+     * Converts a paged list of object arrays into a list of StudentAccountBalanceResponse objects.
+     * Each object array should contain data representing a Student entity and its associated account balance.
+     *
+     * @param pagedObjects A paged list of object arrays, where each object array contains data
+     *                     representing a Student entity and its associated account balance.
+     * @return A list of StudentAccountBalanceResponse objects representing the converted data.
+     * @throws RuntimeException if the provided pagedObjects is null or empty, indicating that the resource does not exist.
+     */
+    public static List<StudentAccountBalanceResponse> getStudentAccountBalanceResponseFromObjectList(Page<Object[]> pagedObjects) {
+        if (pagedObjects == null) {
+            throw new RuntimeException("The resource does not exist");
+        }
+        List<StudentAccountBalanceResponse> result = new ArrayList<>();
+        for (Object[] object : pagedObjects) {
+            result.add(getStudentAccountBalanceResponseFromObjects(object));
+        }
+        return result;
     }
 
 }

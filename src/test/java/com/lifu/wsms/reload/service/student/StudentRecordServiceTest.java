@@ -5,9 +5,14 @@ import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.util.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,5 +77,31 @@ class StudentRecordServiceTest {
         BigDecimal returnedBalance = studentAccountObject.getAccountBalance();
         assertEquals(student.getStudentId(), returnedStudentId);
         assertEquals(balance, returnedBalance);
+    }
+
+    @Test
+    void getStudentAccountBalanceResponseFromObjectList() {
+        var student1 = TestUtil.getStudent();
+        var student2 = TestUtil.getStudent();
+        BigDecimal balance1 = BigDecimal.valueOf(4.55);
+        BigDecimal balance2 = BigDecimal.valueOf(9.99);
+
+        List<Object[]> objectList = new ArrayList<>();
+        objectList.add(new Object[]{student1, balance1});
+        objectList.add(new Object[]{student2, balance2});
+
+        PageRequest pageRequest = PageRequest.of(0, objectList.size());
+        PageImpl<Object[]> objects = new PageImpl<>(objectList, pageRequest, objectList.size());
+
+        List<StudentAccountBalanceResponse> studentAccountObjects = StudentRecordService.getStudentAccountBalanceResponseFromObjectList(objects);
+
+        var firstStudentResponse = studentAccountObjects.getFirst();
+        var lastStudentResponse = studentAccountObjects.getLast();
+
+        assertEquals(2, studentAccountObjects.size());
+        assertEquals(student1.getStudentId(), firstStudentResponse.getStudentResponse().getStudentId());
+        assertEquals(balance1, firstStudentResponse.getAccountBalance());
+        assertEquals(student2.getStudentId(), lastStudentResponse.getStudentResponse().getStudentId());
+        assertEquals(balance2, lastStudentResponse.getAccountBalance());
     }
 }

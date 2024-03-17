@@ -1,5 +1,6 @@
 package com.lifu.wsms.reload.service.student;
 
+import ch.qos.logback.classic.spi.EventArgUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.ErrorCode;
@@ -12,6 +13,7 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
+import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
@@ -20,12 +22,15 @@ import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
@@ -229,6 +234,32 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> findAllStudentAndAccounts(int pageNumber, int pageSize) {
-        return null;
+        try {
+            Page<Object[]> pagedResults = studentRepository.findAllStudentsAndAccountBalances(PageRequest.of(pageNumber, pageSize));
+            List<StudentAccountBalanceResponse> studentAccountBalanceResponses =
+                    StudentRecordService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
+
+            return Either.right(
+                    SuccessResponse.builder()
+                            .body(objectMapper.valueToTree(studentAccountBalanceResponses))
+                            .apiResponse(ApiResponse.builder()
+                                    .httpStatusCode(HttpStatus.OK)
+                                    .responseCode(TRANSACTION_OKAY_CODE)
+                                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_OKAY_CODE))
+                                    .isError(false)
+                                    .build())
+                            .build()
+            );
+        } catch (DataAccessException e) {
+            log.error("Fetch students and account request error => {}", e.getMessage());
+            return Either.left(FailureResponse.builder()
+                    .apiResponse(ApiResponse.builder()
+                            .isError(true)
+                            .httpStatusCode(HttpStatus.NOT_FOUND)
+                            .responseCode(RESOURCE_NOT_FOUND_CODE)
+                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
+                            .build())
+                    .build());
+        }
     }
 }
