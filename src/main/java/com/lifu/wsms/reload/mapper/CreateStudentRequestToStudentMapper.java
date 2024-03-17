@@ -17,10 +17,15 @@ public interface CreateStudentRequestToStudentMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUpdateAt", ignore = true)
     @Mapping(target = "dob", source = "dob", dateFormat = "yyyy-MM-dd", qualifiedByName = "localDateStringToLong")
+    @Mapping(target = "actionBy", expression = "java(mapUserFromSecurityContext())")
     Student toStudent(CreateStudentRequest createStudentRequest);
 
     @Named("localDateStringToLong")
     default long mapLocalDateStringToLong(String dob) {
         return AppUtil.convertLocalDateToLong(AppUtil.parseToLocalDate(dob));
+    }
+
+    default String mapUserFromSecurityContext() {
+        return AppUtil.getUserFromSecurityContext();
     }
 }

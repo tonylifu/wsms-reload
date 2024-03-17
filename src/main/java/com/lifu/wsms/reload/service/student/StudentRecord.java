@@ -190,4 +190,14 @@ public class StudentRecord implements StudentService {
                     .build());
         }
     }
+
+    @Override
+    public Either<FailureResponse, SuccessResponse> findStudentAndAccount(String studentId) {
+        return null;
+    }
+
+    @Override
+    public Either<FailureResponse, SuccessResponse> findAllStudentAndAccounts(int pageNumber, int pageSize) {
+        return null;
+    }
 }

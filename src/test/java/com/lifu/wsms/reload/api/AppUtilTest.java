@@ -91,4 +91,10 @@ class AppUtilTest {
         LocalDate parsedDate = AppUtil.parseToLocalDate("2010-01-01");
         assertEquals(localDate, parsedDate);
     }
+
+    @Test
+    void getUserFromSecurityContext() {
+        var user = AppUtil.getUserFromSecurityContext();
+        assertEquals("unsecured testing", user);
+    }
 }

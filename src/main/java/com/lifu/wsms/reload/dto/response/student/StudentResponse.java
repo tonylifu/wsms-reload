@@ -24,4 +24,5 @@ public class StudentResponse {
     private LegalGuardian legalGuardian;
     private String currentGrade;
     private boolean disabled;
+    private String actionBy;
 }
