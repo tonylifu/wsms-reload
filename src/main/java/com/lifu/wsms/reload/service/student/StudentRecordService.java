@@ -116,6 +116,7 @@ public class StudentRecordService {
      */
     public static Either<FailureResponse, Boolean> validateStudentId(String studentId) {
         if (studentId == null || studentId.isEmpty() || !AppUtil.isValidStudentId(studentId)) {
+            log.error("invalid studentId => {}", studentId);
             return Either.left(FailureResponse.builder()
                     .apiResponse(ApiResponse.builder()
                             .isError(true)

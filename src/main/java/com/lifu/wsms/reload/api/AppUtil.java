@@ -23,7 +23,7 @@ import java.util.stream.StreamSupport;
 public class AppUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // Regular expression pattern for the studentId format
-    private static final String STUDENT_ID_PATTERN = "KSK/\\d{4}/\\d{4}";
+    private static final String STUDENT_ID_PATTERN = "KSK-\\d{4}-\\d{4}";
 
     // Pattern object for compiling the regular expression
     private static final Pattern STUDENT_ID_REGEX = Pattern.compile(STUDENT_ID_PATTERN);
@@ -85,7 +85,7 @@ public class AppUtil {
     public static String generateStudentId() {
         int currentYear = Year.now().getValue();
         int randomNumber = generateRandomNumber();
-        return "KSK/" + currentYear + "/" + randomNumber;
+        return "KSK-" + currentYear + "-" + randomNumber;
     }
 
     /**
