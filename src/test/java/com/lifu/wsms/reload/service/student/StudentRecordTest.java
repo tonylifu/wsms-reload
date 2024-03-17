@@ -8,6 +8,7 @@ import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import com.lifu.wsms.reload.util.TestUtil;
 import io.vavr.control.Either;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,7 +91,7 @@ class StudentRecordTest {
     }
 
     @Test
-    void findAllStudents() {
+    void createTwentStudents_findAllStudents_clean() {
         //students KSK/2024/0001 - KSK/2024/0020
         int pageNumber = 1; //pageNumber is 0 index based
         int pageSize = 5;
@@ -128,6 +130,81 @@ class StudentRecordTest {
                 .map(successResponse -> (ArrayNode) successResponse.getBody());
         ArrayNode arrayEmptyNodes = arrayEmptyNodesEither.get();
         List<StudentResponse> emptyStudents = AppUtil.convertJsonNodeToList(arrayEmptyNodes, StudentResponse.class);
+        assertEquals(0, emptyStudents.size());
+    }
+
+    @Test
+    void createStudent_findStudentAndAccount_andClean() {
+        // Create Student Request Object
+        var createStudentRequest = getCreateStudentRequest();
+
+        // Create Student
+        Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
+        assertTrue(createResponse.isRight());
+        var createStudentResponse = createResponse.get();
+        assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
+        var student = createStudentResponse.getBody();
+        assertEquals("KSK/2024/1234", student.get("studentId").asText());
+
+        // Read Student and Account
+        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudentAndAccount("KSK/2024/1234");
+        assertTrue(readResponse.isRight());
+        var readStudentResponse = readResponse.get().getBody();
+        assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
+        assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(readStudentResponse.get("accountBalance").doubleValue()));
+        assertEquals("KSK/2024/1234", readStudentResponse.get("studentResponse").get("studentId").asText());
+        assertEquals("David", readStudentResponse.get("studentResponse").get("firstName").asText());
+
+        // Delete Student
+        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
+        assertFalse(deleteStudent.isError());
+        assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
+    }
+
+    @Test
+    void createTwentyStudents_findAllStudentAndAccounts_clean() {
+        //students KSK/2024/0001 - KSK/2024/0020
+        int pageNumber = 1; //pageNumber is 0 index based
+        int pageSize = 5;
+        List<CreateStudentRequest> twentyCreateStudentRequests = TestUtil.getTwentyCreateStudentsRequests();
+
+        twentyCreateStudentRequests.forEach(createStudentRequest -> {
+            Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
+            assertTrue(createResponse.isRight());
+            assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
+        });
+
+        //assertions
+        int firstStudentIndex = pageSize * pageNumber + 1;
+        String firstStudentId = "KSK/2024/" + String.format("%04d", firstStudentIndex);
+        Either<FailureResponse, SuccessResponse> allStudents = studentService.findAllStudentAndAccounts(pageNumber, pageSize);
+        assertTrue(allStudents.isRight());
+        Either<FailureResponse, ArrayNode> arrayNodesEither = allStudents
+                .map(successResponse -> (ArrayNode) successResponse.getBody());
+        ArrayNode arrayNodes = arrayNodesEither.get();
+        List<StudentAccountBalanceResponse> students = AppUtil.convertJsonNodeToList(arrayNodes, StudentAccountBalanceResponse.class);
+        assertEquals(pageSize, students.size());
+        var firstStudent = students.getFirst();
+        var firstStudentResponse = firstStudent.getStudentResponse();
+        System.out.println("STUDENT RESPONSE => "+ firstStudentResponse);
+        assertEquals(firstStudentId, firstStudentResponse.getStudentId());
+        assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(firstStudent.getAccountBalance().doubleValue()));
+
+        //clean up
+        twentyCreateStudentRequests.forEach(createStudentRequest -> {
+            var studentId = createStudentRequest.getStudentId();
+            ApiResponse deleteStudent = studentService.deleteStudent(studentId);
+            assertFalse(deleteStudent.isError());
+            assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
+        });
+
+        //student list should be zero after clean up
+        Either<FailureResponse, SuccessResponse> allEmptyStudents = studentService.findAllStudentAndAccounts(pageNumber, pageSize);
+        assertTrue(allEmptyStudents.isRight());
+        Either<FailureResponse, ArrayNode> arrayEmptyNodesEither = allEmptyStudents
+                .map(successResponse -> (ArrayNode) successResponse.getBody());
+        ArrayNode arrayEmptyNodes = arrayEmptyNodesEither.get();
+        List<StudentAccountBalanceResponse> emptyStudents = AppUtil.convertJsonNodeToList(arrayEmptyNodes, StudentAccountBalanceResponse.class);
         assertEquals(0, emptyStudents.size());
     }
 

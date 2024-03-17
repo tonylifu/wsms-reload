@@ -1,0 +1,23 @@
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/webstartrek?currentSchema=kusaki_test
+#    username: *********
+#    password: ********
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+server:
+  port: 9085
+
+# H2 Configuration
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
