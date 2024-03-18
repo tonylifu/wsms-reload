@@ -109,11 +109,14 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> allStudents = studentService.findAllStudents(pageNumber, pageSize);
         assertTrue(allStudents.isRight());
         Either<FailureResponse, ArrayNode> arrayNodesEither = allStudents
-                .map(successResponse -> (ArrayNode) successResponse.getBody());
+                .map(successResponse -> (ArrayNode) successResponse.getBody().get("students"));
         ArrayNode arrayNodes = arrayNodesEither.get();
         List<StudentResponse> students = AppUtil.convertJsonNodeToList(arrayNodes, StudentResponse.class);
         assertEquals(pageSize, students.size());
         assertEquals(firstStudentId, students.getFirst().getStudentId());
+        Either<FailureResponse, Long> longEither = allStudents
+                .map(successResponse -> successResponse.getBody().get("totalCount").asLong());
+        assertEquals(twentyCreateStudentRequests.size(), longEither.get());
 
         //clean up
         twentyCreateStudentRequests.forEach(createStudentRequest -> {
@@ -127,7 +130,7 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> allEmptyStudents = studentService.findAllStudents(pageNumber, pageSize);
         assertTrue(allEmptyStudents.isRight());
         Either<FailureResponse, ArrayNode> arrayEmptyNodesEither = allEmptyStudents
-                .map(successResponse -> (ArrayNode) successResponse.getBody());
+                .map(successResponse -> (ArrayNode) successResponse.getBody().get("students"));
         ArrayNode arrayEmptyNodes = arrayEmptyNodesEither.get();
         List<StudentResponse> emptyStudents = AppUtil.convertJsonNodeToList(arrayEmptyNodes, StudentResponse.class);
         assertEquals(0, emptyStudents.size());
@@ -180,7 +183,7 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> allStudents = studentService.findAllStudentAndAccounts(pageNumber, pageSize);
         assertTrue(allStudents.isRight());
         Either<FailureResponse, ArrayNode> arrayNodesEither = allStudents
-                .map(successResponse -> (ArrayNode) successResponse.getBody());
+                .map(successResponse -> (ArrayNode) successResponse.getBody().get("studentAccounts"));
         ArrayNode arrayNodes = arrayNodesEither.get();
         List<StudentAccountBalanceResponse> students = AppUtil.convertJsonNodeToList(arrayNodes, StudentAccountBalanceResponse.class);
         assertEquals(pageSize, students.size());
@@ -188,6 +191,9 @@ class StudentRecordTest {
         var firstStudentResponse = firstStudent.getStudentResponse();
         assertEquals(firstStudentId, firstStudentResponse.getStudentId());
         assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(firstStudent.getAccountBalance().doubleValue()));
+        Either<FailureResponse, Long> longEither = allStudents
+                .map(successResponse -> successResponse.getBody().get("totalCount").asLong());
+        assertEquals(twentyCreateStudentRequests.size(), longEither.get());
 
         //clean up
         twentyCreateStudentRequests.forEach(createStudentRequest -> {
@@ -201,7 +207,7 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> allEmptyStudents = studentService.findAllStudentAndAccounts(pageNumber, pageSize);
         assertTrue(allEmptyStudents.isRight());
         Either<FailureResponse, ArrayNode> arrayEmptyNodesEither = allEmptyStudents
-                .map(successResponse -> (ArrayNode) successResponse.getBody());
+                .map(successResponse -> (ArrayNode) successResponse.getBody().get("studentAccounts"));
         ArrayNode arrayEmptyNodes = arrayEmptyNodesEither.get();
         List<StudentAccountBalanceResponse> emptyStudents = AppUtil.convertJsonNodeToList(arrayEmptyNodes, StudentAccountBalanceResponse.class);
         assertEquals(0, emptyStudents.size());

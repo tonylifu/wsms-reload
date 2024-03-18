@@ -11,6 +11,9 @@ import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
+import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponses;
+import com.lifu.wsms.reload.dto.response.student.StudentResponse;
+import com.lifu.wsms.reload.dto.response.student.StudentResponses;
 import com.lifu.wsms.reload.entity.finance.AccountBalance;
 import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
@@ -113,11 +116,15 @@ public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> findAllStudents(int pageNumber, int pageSize) {
         try {
-            return buildSuccessResponse(AppUtil.convertListToJsonNode(
-                            studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()
-                                    .stream()
-                                    .map(StudentToStudentResponseMapper.INSTANCE::toStudentResponse)
-                                    .collect(Collectors.toList())),
+            List<StudentResponse> studentResponses = studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()
+                    .stream()
+                    .map(StudentToStudentResponseMapper.INSTANCE::toStudentResponse)
+                    .toList();
+            return buildSuccessResponse(objectMapper.valueToTree(
+                            StudentResponses.builder()
+                                    .students(studentResponses)
+                                    .totalCount(studentRepository.count())
+                                    .build()),
                     HttpStatus.OK, TRANSACTION_SUCCESS_CODE);
         } catch (DataAccessException e) {
             log.error("Fetch students request error => {}", e.getMessage());
@@ -150,8 +157,12 @@ public class StudentRecord implements StudentService {
     public Either<FailureResponse, SuccessResponse> findAllStudentAndAccounts(int pageNumber, int pageSize) {
         try {
             Page<Object[]> pagedResults = studentRepository.findAllStudentsAndAccountBalances(PageRequest.of(pageNumber, pageSize));
-            List<StudentAccountBalanceResponse> studentAccountBalanceResponses =
+            List<StudentAccountBalanceResponse> studentAccountBalanceResponseList =
                     ApiService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
+            var studentAccountBalanceResponses = StudentAccountBalanceResponses.builder()
+                    .studentAccounts(studentAccountBalanceResponseList)
+                    .totalCount(studentRepository.count())
+                    .build();
 
             return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponses),
                     HttpStatus.OK, TRANSACTION_OKAY_CODE);
