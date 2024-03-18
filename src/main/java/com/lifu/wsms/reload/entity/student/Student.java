@@ -8,14 +8,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "student")
+@Table(name = "students")
 @Data
 public class Student {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "students_sequence")
+    @SequenceGenerator(name = "students_sequence", sequenceName = "students_sequence",
+            allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, unique = true)

@@ -45,14 +45,14 @@ class StudentRecordTest {
         var createStudentResponse = createResponse.get();
         assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
         var student = createStudentResponse.getBody();
-        assertEquals("KSK/2024/1234", student.get("studentId").asText());
+        assertEquals("KSK-2024-1234", student.get("studentId").asText());
 
         // Read Student
-        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("KSK/2024/1234");
+        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudent("KSK-2024-1234");
         assertTrue(readResponse.isRight());
         var readStudentResponse = readResponse.get().getBody();
         assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
-        assertEquals("KSK/2024/1234", readStudentResponse.get("studentId").asText());
+        assertEquals("KSK-2024-1234", readStudentResponse.get("studentId").asText());
         assertEquals("David", readStudentResponse.get("firstName").asText());
 
         // Update Student
@@ -60,11 +60,11 @@ class StudentRecordTest {
         Either<FailureResponse, SuccessResponse> updateResponse = studentService.updateStudent(updateStudentRequest);
         assertFalse(updateResponse.isLeft());
         var updateResult = updateResponse.get().getBody();
-        assertEquals("KSK/2024/1234", updateResult.get("studentId").asText());
+        assertEquals("KSK-2024-1234", updateResult.get("studentId").asText());
         assertEquals("Joan", updateResult.get("firstName").asText());
 
         // Delete Student
-        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
+        ApiResponse deleteStudent = studentService.deleteStudent("KSK-2024-1234");
         assertFalse(deleteStudent.isError());
         assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
     }
@@ -105,7 +105,7 @@ class StudentRecordTest {
 
         //assertions
         int firstStudentIndex = pageSize * pageNumber + 1;
-        String firstStudentId = "KSK/2024/" + String.format("%04d", firstStudentIndex);
+        String firstStudentId = "KSK-2024-" + String.format("%04d", firstStudentIndex);
         Either<FailureResponse, SuccessResponse> allStudents = studentService.findAllStudents(pageNumber, pageSize);
         assertTrue(allStudents.isRight());
         Either<FailureResponse, ArrayNode> arrayNodesEither = allStudents
@@ -144,26 +144,26 @@ class StudentRecordTest {
         var createStudentResponse = createResponse.get();
         assertEquals(HttpStatus.CREATED, createResponse.get().getApiResponse().getHttpStatusCode());
         var student = createStudentResponse.getBody();
-        assertEquals("KSK/2024/1234", student.get("studentId").asText());
+        assertEquals("KSK-2024-1234", student.get("studentId").asText());
 
         // Read Student and Account
-        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudentAndAccount("KSK/2024/1234");
+        Either<FailureResponse, SuccessResponse> readResponse = studentService.findStudentAndAccount("KSK-2024-1234");
         assertTrue(readResponse.isRight());
         var readStudentResponse = readResponse.get().getBody();
         assertEquals(HttpStatus.OK, readResponse.get().getApiResponse().getHttpStatusCode());
         assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(readStudentResponse.get("accountBalance").doubleValue()));
-        assertEquals("KSK/2024/1234", readStudentResponse.get("studentResponse").get("studentId").asText());
+        assertEquals("KSK-2024-1234", readStudentResponse.get("studentResponse").get("studentId").asText());
         assertEquals("David", readStudentResponse.get("studentResponse").get("firstName").asText());
 
         // Delete Student
-        ApiResponse deleteStudent = studentService.deleteStudent("KSK/2024/1234");
+        ApiResponse deleteStudent = studentService.deleteStudent("KSK-2024-1234");
         assertFalse(deleteStudent.isError());
         assertEquals(HttpStatus.NO_CONTENT, deleteStudent.getHttpStatusCode());
     }
 
     @Test
     void createTwentyStudents_findAllStudentAndAccounts_clean() {
-        //students KSK/2024/0001 - KSK/2024/0020
+        //students KSK-2024-0001 - KSK-2024-0020
         int pageNumber = 1; //pageNumber is 0 index based
         int pageSize = 5;
         List<CreateStudentRequest> twentyCreateStudentRequests = TestUtil.getTwentyCreateStudentsRequests();
@@ -176,7 +176,7 @@ class StudentRecordTest {
 
         //assertions
         int firstStudentIndex = pageSize * pageNumber + 1;
-        String firstStudentId = "KSK/2024/" + String.format("%04d", firstStudentIndex);
+        String firstStudentId = "KSK-2024-" + String.format("%04d", firstStudentIndex);
         Either<FailureResponse, SuccessResponse> allStudents = studentService.findAllStudentAndAccounts(pageNumber, pageSize);
         assertTrue(allStudents.isRight());
         Either<FailureResponse, ArrayNode> arrayNodesEither = allStudents
@@ -186,7 +186,6 @@ class StudentRecordTest {
         assertEquals(pageSize, students.size());
         var firstStudent = students.getFirst();
         var firstStudentResponse = firstStudent.getStudentResponse();
-        System.out.println("STUDENT RESPONSE => "+ firstStudentResponse);
         assertEquals(firstStudentId, firstStudentResponse.getStudentId());
         assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(firstStudent.getAccountBalance().doubleValue()));
 
