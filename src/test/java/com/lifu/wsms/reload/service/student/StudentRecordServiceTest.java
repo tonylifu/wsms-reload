@@ -1,11 +1,10 @@
 package com.lifu.wsms.reload.service.student;
 
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
-import com.lifu.wsms.reload.entity.student.Student;
+import com.lifu.wsms.reload.service.ApiService;
 import com.lifu.wsms.reload.util.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,7 @@ class StudentRecordServiceTest {
     @Test
     void validateCreateStudent_happy() {
         var createStudent = TestUtil.getCreateStudentRequest();
-        var result = StudentRecordService.validateCreateStudent(createStudent);
+        var result = ApiService.validateCreateStudent(createStudent);
         System.out.println(result);
         assertTrue(result.isRight());
         assertTrue(result.get());
@@ -31,7 +30,7 @@ class StudentRecordServiceTest {
     void validateCreateStudent_sad() {
         var createStudent = TestUtil.getCreateStudentRequest();
         createStudent.setStudentId(null);
-        var result = StudentRecordService.validateCreateStudent(createStudent);
+        var result = ApiService.validateCreateStudent(createStudent);
         assertTrue(result.isLeft());
         var failureResponse = result.getLeft();
         assertEquals(HttpStatus.BAD_REQUEST, failureResponse.getApiResponse().getHttpStatusCode());
@@ -40,7 +39,7 @@ class StudentRecordServiceTest {
     @Test
     void validateUpdateStudent_happy() {
         var updateStudent = TestUtil.getUpdateStudentRequest();
-        var result = StudentRecordService.validateUpdateStudent(updateStudent);
+        var result = ApiService.validateUpdateStudent(updateStudent);
         assertTrue(result.isRight());
         assertTrue(result.get());
     }
@@ -49,7 +48,7 @@ class StudentRecordServiceTest {
     void validateUpdateStudent_sad() {
         var updateStudent = TestUtil.getUpdateStudentRequest();
         updateStudent.setStudentId(null);
-        var result = StudentRecordService.validateUpdateStudent(updateStudent);
+        var result = ApiService.validateUpdateStudent(updateStudent);
         assertTrue(result.isLeft());
         var failureResponse = result.getLeft();
         assertEquals(HttpStatus.BAD_REQUEST, failureResponse.getApiResponse().getHttpStatusCode());
@@ -62,7 +61,7 @@ class StudentRecordServiceTest {
         student.setFirstName(null);
         assertNull(student.getFirstName());
         assertNotNull(updateStudent.getFirstName());
-        var result = StudentRecordService.populateStudentForUpdate(student, updateStudent);
+        var result = ApiService.populateStudentForUpdate(student, updateStudent);
         assertNotNull(result.getFirstName());
         assertEquals(updateStudent.getFirstName(), result.getFirstName());
     }
@@ -72,7 +71,7 @@ class StudentRecordServiceTest {
         var student = TestUtil.getStudent();
         BigDecimal balance = BigDecimal.valueOf(4.55);
         Object[] objects = {student, balance};
-        StudentAccountBalanceResponse studentAccountObject = StudentRecordService.getStudentAccountBalanceResponseFromObjects(objects);
+        StudentAccountBalanceResponse studentAccountObject = ApiService.getStudentAccountBalanceResponseFromObjects(objects);
         String returnedStudentId = studentAccountObject.getStudentResponse().getStudentId();
         BigDecimal returnedBalance = studentAccountObject.getAccountBalance();
         assertEquals(student.getStudentId(), returnedStudentId);
@@ -93,7 +92,7 @@ class StudentRecordServiceTest {
         PageRequest pageRequest = PageRequest.of(0, objectList.size());
         PageImpl<Object[]> objects = new PageImpl<>(objectList, pageRequest, objectList.size());
 
-        List<StudentAccountBalanceResponse> studentAccountObjects = StudentRecordService.getStudentAccountBalanceResponseFromObjectList(objects);
+        List<StudentAccountBalanceResponse> studentAccountObjects = ApiService.getStudentAccountBalanceResponseFromObjectList(objects);
 
         var firstStudentResponse = studentAccountObjects.getFirst();
         var lastStudentResponse = studentAccountObjects.getLast();

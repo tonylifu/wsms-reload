@@ -17,6 +17,7 @@ import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
+import com.lifu.wsms.reload.service.ApiService;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +34,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
-import static com.lifu.wsms.reload.service.student.StudentRecordService.buildErrorResponse;
-import static com.lifu.wsms.reload.service.student.StudentRecordService.buildSuccessResponse;
+import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
+import static com.lifu.wsms.reload.service.ApiService.buildSuccessResponse;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -46,7 +47,7 @@ public class StudentRecord implements StudentService {
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
-        return StudentRecordService.validateCreateStudent(createStudentRequest)
+        return ApiService.validateCreateStudent(createStudentRequest)
                 .fold(Either::left, validatedRequest -> createStudentAndAccount(createStudentRequest));
     }
 
@@ -71,10 +72,10 @@ public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> updateStudent(UpdateStudentRequest updateStudentRequest) {
         try {
-            return StudentRecordService.validateUpdateStudent(updateStudentRequest)
+            return ApiService.validateUpdateStudent(updateStudentRequest)
                     .map(result -> {
                         return studentRepository.findByStudentId(updateStudentRequest.getStudentId())
-                                .map(student -> studentRepository.save(StudentRecordService.populateStudentForUpdate(student, updateStudentRequest)))
+                                .map(student -> studentRepository.save(ApiService.populateStudentForUpdate(student, updateStudentRequest)))
                                 .orElseThrow(() -> new RuntimeException("Student record update failed"));
                     })
                     .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
@@ -132,7 +133,7 @@ public class StudentRecord implements StudentService {
                             .stream()
                             .map(objects -> {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =
-                                        StudentRecordService.getStudentAccountBalanceResponseFromObjects(objects);
+                                        ApiService.getStudentAccountBalanceResponseFromObjects(objects);
                                 return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponse),
                                         HttpStatus.OK, TRANSACTION_OKAY_CODE).get();
                             })
@@ -150,7 +151,7 @@ public class StudentRecord implements StudentService {
         try {
             Page<Object[]> pagedResults = studentRepository.findAllStudentsAndAccountBalances(PageRequest.of(pageNumber, pageSize));
             List<StudentAccountBalanceResponse> studentAccountBalanceResponses =
-                    StudentRecordService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
+                    ApiService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
 
             return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponses),
                     HttpStatus.OK, TRANSACTION_OKAY_CODE);
