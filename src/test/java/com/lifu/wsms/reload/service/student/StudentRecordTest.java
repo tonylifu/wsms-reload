@@ -186,7 +186,6 @@ class StudentRecordTest {
         assertEquals(pageSize, students.size());
         var firstStudent = students.getFirst();
         var firstStudentResponse = firstStudent.getStudentResponse();
-        System.out.println("STUDENT RESPONSE => "+ firstStudentResponse);
         assertEquals(firstStudentId, firstStudentResponse.getStudentId());
         assertEquals(BigDecimal.valueOf(0.00), BigDecimal.valueOf(firstStudent.getAccountBalance().doubleValue()));
 

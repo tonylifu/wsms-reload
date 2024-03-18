@@ -1,6 +1,5 @@
 package com.lifu.wsms.reload.service.student;
 
-import ch.qos.logback.classic.spi.EventArgUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.ErrorCode;
@@ -22,6 +21,7 @@ import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -29,11 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
+import static com.lifu.wsms.reload.service.student.StudentRecordService.buildErrorResponse;
+import static com.lifu.wsms.reload.service.student.StudentRecordService.buildSuccessResponse;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -45,42 +46,8 @@ public class StudentRecord implements StudentService {
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
-        try {
-            return StudentRecordService.validateCreateStudent(createStudentRequest)
-                    .map(result -> {
-                        var student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudentRequest);
-                        student.setCreatedAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
-                        student.setLastUpdateAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
-                        var createdStudent = studentRepository.save(student);
-                        //TODO - extract create account to a different class SRP (Student and Account to be atomic)
-                        accountRepository.save(AccountBalance.builder()
-                                .studentId(createdStudent.getStudentId())
-                                .balance(BigDecimal.ZERO)
-                                .createdAt(AppUtil.convertLocalDateToLong(LocalDate.now()))
-                                .lastUpdateAt(AppUtil.convertLocalDateToLong(LocalDate.now()))
-                                .build());
-                        return createdStudent;
-                    })
-                    .map(student -> SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
-                            .apiResponse(ApiResponse.builder()
-                                    .httpStatusCode(HttpStatus.CREATED)
-                                    .responseCode(TRANSACTION_CREATED_CODE)
-                                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_CREATED_CODE))
-                                    .isError(false)
-                                    .build())
-                            .build());
-        } catch (DataAccessException e) {
-            log.error("persistence error => {}", e.getMessage());
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.BAD_REQUEST)
-                            .responseCode(DATA_PERSISTENCE_ERROR_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(DATA_PERSISTENCE_ERROR_CODE))
-                            .build())
-                    .build());
-        }
+        return StudentRecordService.validateCreateStudent(createStudentRequest)
+                .fold(Either::left, validatedRequest -> createStudentAndAccount(createStudentRequest));
     }
 
     @Override
@@ -88,27 +55,16 @@ public class StudentRecord implements StudentService {
         try {
             return Either.right(
                     studentRepository.findByStudentId(studentId)
-                            .map(student -> SuccessResponse.builder()
-                                    .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
-                                    .apiResponse(ApiResponse.builder()
-                                            .httpStatusCode(HttpStatus.OK)
-                                            .responseCode(TRANSACTION_OKAY_CODE)
-                                            .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_OKAY_CODE))
-                                            .isError(false)
-                                            .build())
-                                    .build())
+                            .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
+                                    HttpStatus.OK, TRANSACTION_OKAY_CODE).get())
                             .orElseThrow(() -> new RuntimeException("request failed"))
             );
+        } catch (DataAccessException e) {
+            log.error("update request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
         } catch (Exception e) {
-            log.error("Failed request => {}", e.getMessage());
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.NOT_FOUND)
-                            .responseCode(RESOURCE_NOT_FOUND_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
-                            .build())
-                    .build());
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE);
         }
     }
 
@@ -121,25 +77,12 @@ public class StudentRecord implements StudentService {
                                 .map(student -> studentRepository.save(StudentRecordService.populateStudentForUpdate(student, updateStudentRequest)))
                                 .orElseThrow(() -> new RuntimeException("Student record update failed"));
                     })
-                    .map(student -> SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)))
-                            .apiResponse(ApiResponse.builder()
-                                    .httpStatusCode(HttpStatus.OK)
-                                    .responseCode(TRANSACTION_UPDATED_CODE)
-                                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_UPDATED_CODE))
-                                    .isError(false)
-                                    .build())
-                            .build());
+                    .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
+                            HttpStatus.OK, TRANSACTION_UPDATED_CODE).get()
+                    );
         } catch (DataAccessException e) {
             log.error("update error => {}", e.getMessage());
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.NO_CONTENT)
-                            .responseCode(DATA_PERSISTENCE_ERROR_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(DATA_PERSISTENCE_ERROR_CODE))
-                            .build())
-                    .build());
+            return buildErrorResponse(HttpStatus.NO_CONTENT, DATA_PERSISTENCE_ERROR_CODE);
         }
     }
 
@@ -169,31 +112,15 @@ public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> findAllStudents(int pageNumber, int pageSize) {
         try {
-            return Either.right(
-                    SuccessResponse.builder()
-                            .body(AppUtil.convertListToJsonNode(
-                                    studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()
-                                            .stream()
-                                            .map(StudentToStudentResponseMapper.INSTANCE::toStudentResponse)
-                                            .collect(Collectors.toList())
-                            )).apiResponse(ApiResponse.builder()
-                                    .isError(false)
-                                    .httpStatusCode(HttpStatus.OK)
-                                    .responseCode(TRANSACTION_SUCCESS_CODE)
-                                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_SUCCESS_CODE))
-                                    .build())
-                            .build()
-            );
+            return buildSuccessResponse(AppUtil.convertListToJsonNode(
+                            studentRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent()
+                                    .stream()
+                                    .map(StudentToStudentResponseMapper.INSTANCE::toStudentResponse)
+                                    .collect(Collectors.toList())),
+                    HttpStatus.OK, TRANSACTION_SUCCESS_CODE);
         } catch (DataAccessException e) {
             log.error("Fetch students request error => {}", e.getMessage());
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.NOT_FOUND)
-                            .responseCode(RESOURCE_NOT_FOUND_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
-                            .build())
-                    .build());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
         }
     }
 
@@ -206,29 +133,15 @@ public class StudentRecord implements StudentService {
                             .map(objects -> {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =
                                         StudentRecordService.getStudentAccountBalanceResponseFromObjects(objects);
-                                return SuccessResponse.builder()
-                                        .body(objectMapper.valueToTree(studentAccountBalanceResponse))
-                                        .apiResponse(ApiResponse.builder()
-                                                .httpStatusCode(HttpStatus.OK)
-                                                .responseCode(TRANSACTION_OKAY_CODE)
-                                                .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_OKAY_CODE))
-                                                .isError(false)
-                                                .build())
-                                        .build();
+                                return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponse),
+                                        HttpStatus.OK, TRANSACTION_OKAY_CODE).get();
                             })
                             .findFirst()
                             .orElseThrow(() -> new RuntimeException("student and balance request failed"))
             );
         } catch (Exception e) {
             log.error("Failed student balance request => {}", e.getMessage());
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.NOT_FOUND)
-                            .responseCode(RESOURCE_NOT_FOUND_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
-                            .build())
-                    .build());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
         }
     }
 
@@ -239,27 +152,77 @@ public class StudentRecord implements StudentService {
             List<StudentAccountBalanceResponse> studentAccountBalanceResponses =
                     StudentRecordService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
 
-            return Either.right(
-                    SuccessResponse.builder()
-                            .body(objectMapper.valueToTree(studentAccountBalanceResponses))
-                            .apiResponse(ApiResponse.builder()
-                                    .httpStatusCode(HttpStatus.OK)
-                                    .responseCode(TRANSACTION_OKAY_CODE)
-                                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_OKAY_CODE))
-                                    .isError(false)
-                                    .build())
-                            .build()
-            );
+            return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponses),
+                    HttpStatus.OK, TRANSACTION_OKAY_CODE);
         } catch (DataAccessException e) {
             log.error("Fetch students and account request error => {}", e.getMessage());
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.NOT_FOUND)
-                            .responseCode(RESOURCE_NOT_FOUND_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
-                            .build())
-                    .build());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
         }
     }
+
+    /**
+     * Creates a new Student entity and its associated AccountBalance entity based on the provided CreateStudentRequest.
+     * Saves both entities to the database and returns a success response if successful.
+     * If an error occurs during the process, it logs the error and returns an appropriate failure response.
+     *
+     * @param createStudentRequest The CreateStudentRequest containing the information to create the Student and AccountBalance entities.
+     * @return Either a SuccessResponse containing the newly created Student information if successful,
+     * or a FailureResponse containing error details if an error occurs during the process.
+     */
+    private Either<FailureResponse, SuccessResponse> createStudentAndAccount(CreateStudentRequest createStudentRequest) {
+        try {
+            Student student = createStudentEntity(createStudentRequest);
+            AccountBalance accountBalance = createAccountBalanceEntity(student);
+
+            studentRepository.save(student);
+            accountRepository.save(accountBalance);
+
+            return buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
+                    HttpStatus.CREATED, TRANSACTION_CREATED_CODE);
+
+        } catch (DataIntegrityViolationException e) {
+            log.error("SQL insertion error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DATA_PERSISTENCE_ERROR_CODE);
+        } catch (DataAccessException e) {
+            log.error("Persistence error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DATA_PERSISTENCE_ERROR_CODE);
+        } catch (Exception e) {
+            log.error("An unexpected error occurred: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE);
+        }
+    }
+
+    /**
+     * Creates a new Student entity based on the provided CreateStudentRequest.
+     *
+     * @param createStudentRequest The CreateStudentRequest containing the information to create the Student entity.
+     * @return The newly created Student entity populated with data from the CreateStudentRequest.
+     */
+    private Student createStudentEntity(CreateStudentRequest createStudentRequest) {
+        Student student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudentRequest);
+
+        // Set the creation and last update timestamps to the current time
+        long now = AppUtil.convertLocalDateToLong(LocalDate.now());
+        student.setCreatedAt(now);
+        student.setLastUpdateAt(now);
+
+        return student;
+    }
+
+
+    /**
+     * Creates a new AccountBalance entity based on the provided Student.
+     *
+     * @param student The Student object for which the AccountBalance entity will be created.
+     * @return The newly created AccountBalance entity initialized with default values and information from the Student.
+     */
+    private AccountBalance createAccountBalanceEntity(Student student) {
+        return AccountBalance.builder()
+                .studentId(student.getStudentId())
+                .balance(BigDecimal.ZERO)
+                .createdAt(student.getCreatedAt())
+                .lastUpdateAt(student.getLastUpdateAt())
+                .build();
+    }
+
 }

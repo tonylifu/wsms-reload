@@ -19,6 +19,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers("/api/v1/account", "/api/v1/account/*")
                                 .permitAll()
+                                .requestMatchers("/api/v1/sequence")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated());
         return http.build();

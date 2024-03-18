@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "account_balance")
@@ -17,7 +16,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class AccountBalance {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_balance_sequence")
+    @SequenceGenerator(name = "account_balance_sequence", sequenceName = "account_balancet_sequence",
+            allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, unique = true)
