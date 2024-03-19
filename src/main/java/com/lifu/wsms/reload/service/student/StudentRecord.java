@@ -50,6 +50,9 @@ public class StudentRecord implements StudentService {
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
+        if (createStudentRequest.getStudentId() != null) {
+            createStudentRequest.setStudentId(createStudentRequest.getStudentId().strip().toUpperCase());
+        }
         return ApiService.validateCreateStudent(createStudentRequest)
                 .fold(Either::left, validatedRequest -> createStudentAndAccount(createStudentRequest));
     }
@@ -58,7 +61,7 @@ public class StudentRecord implements StudentService {
     public Either<FailureResponse, SuccessResponse> findStudent(String studentId) {
         try {
             return Either.right(
-                    studentRepository.findByStudentId(studentId)
+                    studentRepository.findByStudentId(studentId.strip().toUpperCase())
                             .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
                                     HttpStatus.OK, TRANSACTION_OKAY_CODE).get())
                             .orElseThrow(() -> new RuntimeException("request failed"))
@@ -75,6 +78,9 @@ public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> updateStudent(UpdateStudentRequest updateStudentRequest) {
         try {
+            if (updateStudentRequest.getStudentId() != null) {
+                updateStudentRequest.setStudentId(updateStudentRequest.getStudentId().strip().toUpperCase());
+            }
             return ApiService.validateUpdateStudent(updateStudentRequest)
                     .map(result -> {
                         return studentRepository.findByStudentId(updateStudentRequest.getStudentId())
@@ -94,6 +100,7 @@ public class StudentRecord implements StudentService {
     @Override
     public ApiResponse deleteStudent(String studentId) {
         try {
+            studentId = studentId.strip().toUpperCase();
             studentRepository.deleteByStudentId(studentId);
             accountRepository.deleteByStudentId(studentId);
             return ApiResponse.builder()
@@ -136,13 +143,13 @@ public class StudentRecord implements StudentService {
     public Either<FailureResponse, SuccessResponse> findStudentAndAccount(String studentId) {
         try {
             return Either.right(
-                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId)
+                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId.strip().toUpperCase())
                             .stream()
                             .map(objects -> {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =
                                         ApiService.getStudentAccountBalanceResponseFromObjects(objects);
                                 return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponse),
-                                        HttpStatus.OK, TRANSACTION_OKAY_CODE).get();
+                                        HttpStatus.OK, TRANSACTION_SUCCESS_CODE).get();
                             })
                             .findFirst()
                             .orElseThrow(() -> new RuntimeException("student and balance request failed"))
@@ -165,7 +172,7 @@ public class StudentRecord implements StudentService {
                     .build();
 
             return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponses),
-                    HttpStatus.OK, TRANSACTION_OKAY_CODE);
+                    HttpStatus.OK, TRANSACTION_SUCCESS_CODE);
         } catch (DataAccessException e) {
             log.error("Fetch students and account request error => {}", e.getMessage());
             return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
