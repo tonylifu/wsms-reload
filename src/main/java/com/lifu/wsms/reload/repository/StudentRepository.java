@@ -28,4 +28,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("SELECT s, a.balance FROM Student s JOIN AccountBalance a ON s.studentId = a.studentId")
     Page<Object[]> findAllStudentsAndAccountBalances(Pageable pageable);
+
+    boolean existsByStudentId(String studentId);
 }

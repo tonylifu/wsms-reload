@@ -15,9 +15,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/oauth/token")
                                 .permitAll()
-                                .requestMatchers("/api/v1/student", "/api/v1/student/*")
+                                .requestMatchers("/api/v1/students", "/api/v1/students/*")
                                 .permitAll()
-                                .requestMatchers("/api/v1/account", "/api/v1/account/*")
+                                .requestMatchers("/api/v1/accounts", "/api/v1/accounts/*")
                                 .permitAll()
                                 .requestMatchers("/api/v1/sequence")
                                 .permitAll()

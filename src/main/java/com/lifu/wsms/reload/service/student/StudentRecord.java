@@ -92,7 +92,13 @@ public class StudentRecord implements StudentService {
                     );
         } catch (DataAccessException e) {
             log.error("update error => {}", e.getMessage());
-            return buildErrorResponse(HttpStatus.NO_CONTENT, DATA_PERSISTENCE_ERROR_CODE);
+            return buildErrorResponse(HttpStatus.NOT_FOUND, DATA_PERSISTENCE_ERROR_CODE);
+        } catch (RuntimeException e) {
+            log.error("resource not found error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
+        } catch (Exception e) {
+            log.error("server error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE);
         }
     }
 
@@ -101,6 +107,10 @@ public class StudentRecord implements StudentService {
     public ApiResponse deleteStudent(String studentId) {
         try {
             studentId = studentId.strip().toUpperCase();
+            if (!studentRepository.existsByStudentId(studentId)){
+                log.error("resource not found for studentId => {}", studentId);
+                return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+            }
             studentRepository.deleteByStudentId(studentId);
             accountRepository.deleteByStudentId(studentId);
             return ApiResponse.builder()
@@ -111,12 +121,10 @@ public class StudentRecord implements StudentService {
                     .build();
         } catch (DataAccessException e) {
             log.error("delete error => {}", e.getMessage());
-            return ApiResponse.builder()
-                    .isError(true)
-                    .httpStatusCode(HttpStatus.NOT_FOUND)
-                    .responseCode(RESOURCE_NOT_FOUND_CODE)
-                    .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
-                    .build();
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("server error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
         }
     }
 

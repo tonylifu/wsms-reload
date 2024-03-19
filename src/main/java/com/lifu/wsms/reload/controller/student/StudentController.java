@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class StudentController {
     private final StudentService studentService;
-    public static final String STUDENT_PATH = "/api/v1/student";
+    public static final String STUDENT_PATH = "/api/v1/students";
     public static final String STUDENT_PATH_ID = STUDENT_PATH + "/{studentId}";
-    public static final String STUDENT_ACCOUNT_PATH = "/api/v1/account";
+    public static final String STUDENT_ACCOUNT_PATH = "/api/v1/accounts";
     public static final String STUDENT_ACCOUNT_PATH_ID = STUDENT_ACCOUNT_PATH + "/{studentId}";
 
     @PostMapping(STUDENT_PATH)
