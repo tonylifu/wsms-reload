@@ -98,7 +98,7 @@ class StudentControllerTest {
         assertEquals("Ohiero-Lifu", jsonNodeResponseBodyUpdated.get("lastName").asText());
         assertEquals(Gender.FEMALE.name(), jsonNodeResponseBodyUpdated.get("gender").asText());
 
-        //Then => delete by studentId and assert deletion
+        //Then => delete by studentId and assert deletion to clean up
         this.mockMvc.perform(delete(updateLocation))
                 .andExpect(status().isNoContent());
     }
