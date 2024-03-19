@@ -19,8 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.lifu.wsms.reload.controller.student.StudentController.STUDENT_ACCOUNT_PATH;
-import static com.lifu.wsms.reload.controller.student.StudentController.STUDENT_PATH;
+import static com.lifu.wsms.reload.controller.student.StudentController.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -104,7 +103,12 @@ class StudentControllerTest {
         assertEquals("Ohiero-Lifu", jsonNodeResponseBodyUpdated.get("lastName").asText());
         assertEquals(Gender.FEMALE.name(), jsonNodeResponseBodyUpdated.get("gender").asText());
 
-        //TODO - find student and account and assert balance
+        //Then => assert student balance
+        this.mockMvc.perform(get(STUDENT_ACCOUNT_PATH_ID, studentId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.body.accountBalance").value(0))
+                .andExpect(jsonPath("$.body.studentResponse.studentId").value(studentId));
 
         //Then => delete by studentId and assert deletion to clean up
         this.mockMvc.perform(delete(updateLocation))
