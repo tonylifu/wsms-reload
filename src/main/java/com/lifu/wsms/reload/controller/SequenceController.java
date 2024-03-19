@@ -16,7 +16,7 @@ public class SequenceController {
     private static final String SEQUENCE_NAME = "students_sequence";
 
     @GetMapping(SEQUENCE_PATH)
-    public ResponseEntity<Long> getNextVal() {
+    public ResponseEntity<?> getNextVal() {
         return sequenceService.getNextSequenceValue(SEQUENCE_NAME)
                 .map(ResponseEntity::ok)
                 .orElseThrow();

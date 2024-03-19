@@ -17,9 +17,10 @@ class SequenceServiceGeneratorTest {
     @Test
     void getNextSequenceValue() {
         var sequenceName = "students_sequence";
-        assertNotNull(sequenceService.getNextSequenceValue(sequenceName));
-        var result = sequenceService.getNextSequenceValue(sequenceName);
-        assertTrue(result.isPresent());
-        assertTrue(result.get() > 0);
+        var sequence = sequenceService.getNextSequenceValue(sequenceName);
+        assertTrue(sequence.isPresent());
+        var sequenceValue = sequence.get();
+        assertTrue(sequenceValue.getNextVal() > 0);
+        assertTrue(sequenceValue.getCurrentVal() >= 0);
     }
 }

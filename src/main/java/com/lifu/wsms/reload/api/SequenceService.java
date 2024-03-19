@@ -1,5 +1,7 @@
 package com.lifu.wsms.reload.api;
 
+import com.lifu.wsms.reload.dto.response.SequenceResponse;
+
 import java.util.Optional;
 
 /**
@@ -16,6 +18,6 @@ public interface SequenceService {
      * @param sequenceName the name of the sequence for which to retrieve the next value
      * @return the next sequential value for the specified sequence name
      */
-    Optional<Long> getNextSequenceValue(String sequenceName);
+    Optional<SequenceResponse> getNextSequenceValue(String sequenceName);
 }
 
