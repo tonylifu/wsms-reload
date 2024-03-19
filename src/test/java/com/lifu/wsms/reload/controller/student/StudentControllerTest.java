@@ -14,9 +14,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static com.lifu.wsms.reload.controller.student.StudentController.STUDENT_ACCOUNT_PATH;
 import static com.lifu.wsms.reload.controller.student.StudentController.STUDENT_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -101,6 +104,8 @@ class StudentControllerTest {
         assertEquals("Ohiero-Lifu", jsonNodeResponseBodyUpdated.get("lastName").asText());
         assertEquals(Gender.FEMALE.name(), jsonNodeResponseBodyUpdated.get("gender").asText());
 
+        //TODO - find student and account and assert balance
+
         //Then => delete by studentId and assert deletion to clean up
         this.mockMvc.perform(delete(updateLocation))
                 .andExpect(status().isNoContent());
@@ -108,14 +113,26 @@ class StudentControllerTest {
 
 
     @Test
-    void findAllStudents() {
+    void findAllStudents() throws Exception {
+        mockMvc.perform(get(STUDENT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                //.andExpect(jsonPath("$.body.totalCount").value(25))
+                .andExpect(jsonPath("$.apiResponse.responseMessage").value("Successful"))
+                .andExpect(jsonPath("$.apiResponse.responseCode").value("003"))
+                .andExpect(jsonPath("$.apiResponse.httpStatusCode").value("OK"))
+                .andExpect(jsonPath("$.apiResponse.error").value(false));
     }
 
     @Test
-    void findStudentAccountBalance() {
-    }
-
-    @Test
-    void findAllStudentsAndAccountBalances() {
+    void findAllStudentsAndAccountBalances() throws Exception {
+        mockMvc.perform(get(STUDENT_ACCOUNT_PATH)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                //.andExpect(jsonPath("$.body.totalCount").value(25))
+                .andExpect(jsonPath("$.apiResponse.responseMessage").value("Successful"))
+                .andExpect(jsonPath("$.apiResponse.responseCode").value("003"))
+                .andExpect(jsonPath("$.apiResponse.httpStatusCode").value("OK"))
+                .andExpect(jsonPath("$.apiResponse.error").value(false));
     }
 }

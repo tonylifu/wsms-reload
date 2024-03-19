@@ -149,7 +149,7 @@ public class StudentRecord implements StudentService {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =
                                         ApiService.getStudentAccountBalanceResponseFromObjects(objects);
                                 return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponse),
-                                        HttpStatus.OK, TRANSACTION_OKAY_CODE).get();
+                                        HttpStatus.OK, TRANSACTION_SUCCESS_CODE).get();
                             })
                             .findFirst()
                             .orElseThrow(() -> new RuntimeException("student and balance request failed"))
@@ -172,7 +172,7 @@ public class StudentRecord implements StudentService {
                     .build();
 
             return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponses),
-                    HttpStatus.OK, TRANSACTION_OKAY_CODE);
+                    HttpStatus.OK, TRANSACTION_SUCCESS_CODE);
         } catch (DataAccessException e) {
             log.error("Fetch students and account request error => {}", e.getMessage());
             return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
