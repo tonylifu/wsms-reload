@@ -50,7 +50,7 @@ public class StudentRecord implements StudentService {
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
-        if (createStudentRequest.getStudentId() != null || !createStudentRequest.getStudentId().strip().isEmpty()) {
+        if (createStudentRequest.getStudentId() != null) {
             createStudentRequest.setStudentId(createStudentRequest.getStudentId().strip().toUpperCase());
         }
         return ApiService.validateCreateStudent(createStudentRequest)
@@ -77,10 +77,10 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> updateStudent(UpdateStudentRequest updateStudentRequest) {
-        if (updateStudentRequest.getStudentId() != null || !updateStudentRequest.getStudentId().strip().isEmpty()) {
-            updateStudentRequest.setStudentId(updateStudentRequest.getStudentId().strip().toUpperCase());
-        }
         try {
+            if (updateStudentRequest.getStudentId() != null) {
+                updateStudentRequest.setStudentId(updateStudentRequest.getStudentId().strip().toUpperCase());
+            }
             return ApiService.validateUpdateStudent(updateStudentRequest)
                     .map(result -> {
                         return studentRepository.findByStudentId(updateStudentRequest.getStudentId())
