@@ -43,10 +43,11 @@ class StudentControllerTest {
 
     @Test
     void createAndReadAndUpdateAndDeleteStudent() throws Exception {
+        //Given => createstudentRequest object
         CreateStudentRequest createStudentRequest = TestUtil.getCreateStudentRequest();
         String studentId = createStudentRequest.getStudentId();
 
-        //Given => create student
+        //When => create student and return location in the header
         String location = mockMvc.perform(
                 post(STUDENT_PATH)
                         .with(csrf())
@@ -56,7 +57,7 @@ class StudentControllerTest {
                 .andExpect(header().exists("location"))
                 .andReturn().getResponse().getHeader("location");
 
-        //When => Read student by studentId
+        //When => Read the student by studentId
         String jsonResponse = this.mockMvc.perform(get(location))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.body.studentId").value(studentId))
@@ -70,14 +71,14 @@ class StudentControllerTest {
         assertEquals("Lifu", jsonNodeResponseBody.get("lastName").asText());
         assertEquals(Gender.MALE.name(), jsonNodeResponseBody.get("gender").asText());
 
-        //Given => update student with a given studentId
+        //Given => an updateStudentRequest with updated fields and studentId
         UpdateStudentRequest updateStudentRequest = objectMapper
                 .treeToValue(jsonNodeResponseBody, UpdateStudentRequest.class);
         updateStudentRequest.setFirstName("Joan");
         updateStudentRequest.setLastName("Ohiero-Lifu");
         updateStudentRequest.setGender(Gender.FEMALE);
 
-        //When
+        //When => you update and return location
         String updateLocation = this.mockMvc.perform(put(STUDENT_PATH)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -93,6 +94,8 @@ class StudentControllerTest {
                 .andReturn().getResponse().getContentAsString();
         JsonNode jsonNodeResponseUpdated = objectMapper.readTree(jsonResponseUpdated);
         JsonNode jsonNodeResponseBodyUpdated = jsonNodeResponseUpdated.get("body");
+
+        //Then => verify the update
         assertEquals(studentId, jsonNodeResponseBodyUpdated.get("studentId").asText());
         assertEquals("Joan", jsonNodeResponseBodyUpdated.get("firstName").asText());
         assertEquals("Ohiero-Lifu", jsonNodeResponseBodyUpdated.get("lastName").asText());
