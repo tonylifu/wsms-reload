@@ -122,14 +122,7 @@ public class ApiService {
     public static Either<FailureResponse, Boolean> validateStudentId(String studentId) {
         if (studentId == null || studentId.isEmpty() || !AppUtil.isValidStudentId(studentId)) {
             log.error("invalid studentId => {}", studentId);
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.BAD_REQUEST)
-                            .responseCode(INVALID_STUDENT_ID_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(INVALID_STUDENT_ID_CODE))
-                            .build())
-                    .build());
+            return Either.left(buildErrorResponse(HttpStatus.BAD_REQUEST, INVALID_STUDENT_ID_CODE).getLeft());
         }
         return Either.right(true);
     }

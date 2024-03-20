@@ -40,8 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
-import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
-import static com.lifu.wsms.reload.service.ApiService.buildSuccessResponse;
+import static com.lifu.wsms.reload.service.ApiService.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -62,9 +61,14 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> findStudent(String studentId) {
+        studentId = studentId.strip().toUpperCase();
+        var isValidStudentIdResult = validateStudentId(studentId);
+        if (isValidStudentIdResult.isLeft()) {
+            return Either.left(isValidStudentIdResult.getLeft());
+        }
         try {
             return Either.right(
-                    studentRepository.findByStudentId(studentId.strip().toUpperCase())
+                    studentRepository.findByStudentId(studentId)
                             .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
                                     HttpStatus.OK, TRANSACTION_OKAY_CODE).get())
                             .orElseThrow(() -> new RuntimeException("request failed"))
@@ -110,6 +114,10 @@ public class StudentRecord implements StudentService {
     public ApiResponse deleteStudent(String studentId) {
         try {
             studentId = studentId.strip().toUpperCase();
+            var isValidStudentIdResult = validateStudentId(studentId);
+            if (isValidStudentIdResult.isLeft()) {
+                return isValidStudentIdResult.getLeft().getApiResponse();
+            }
             if (!studentRepository.existsByStudentId(studentId)){
                 log.error("resource not found for studentId => {}", studentId);
                 return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
@@ -159,8 +167,13 @@ public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> findStudentAndAccount(String studentId) {
         try {
+            studentId = studentId.strip().toUpperCase();
+            var isValidStudentIdResult = validateStudentId(studentId);
+            if (isValidStudentIdResult.isLeft()) {
+                return Either.left(isValidStudentIdResult.getLeft());
+            }
             return Either.right(
-                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId.strip().toUpperCase())
+                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId)
                             .stream()
                             .map(objects -> {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =

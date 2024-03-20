@@ -14,7 +14,7 @@ public enum ErrorCode {
     UNAUTHORIZED_REQUEST(FAILED_AUTHORIZATION_CODE, "Failed authorization request"),
     NOT_FOUND(RESOURCE_NOT_FOUND_CODE, "Resource was not found"),
     //Application specifics
-    INVALID_STUDENT_ID(INVALID_STUDENT_ID_CODE, "Invalid student Id"),
+    INVALID_STUDENT_ID(INVALID_STUDENT_ID_CODE, "Invalid studentId"),
     INVALID_STUDENT_NAME(MISSING_NAMES_CODE, "Invalid student name"),
     INVALID_DOB(INVALID_DOB_CODE, "Invalid date of birth"),
     // Add more error codes and messages as needed
