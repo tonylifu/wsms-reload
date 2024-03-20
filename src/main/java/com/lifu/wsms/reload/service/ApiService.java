@@ -16,6 +16,7 @@ import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
@@ -237,12 +238,15 @@ public class ApiService {
      */
     public static Either<FailureResponse, SuccessResponse> buildErrorResponse(HttpStatus httpStatus,
                                                                               String responseCode) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-HttpStatus", httpStatus.toString());
         return Either.left(FailureResponse.builder()
                 .apiResponse(ApiResponse.builder()
                         .isError(true)
                         .httpStatusCode(httpStatus)
                         .responseCode(responseCode)
                         .responseMessage(ErrorCode.getMessageByCode(responseCode))
+                        .httpHeaders(headers)
                         .build())
                 .build());
     }
@@ -259,12 +263,15 @@ public class ApiService {
      */
     public static Either<FailureResponse, SuccessResponse> buildSuccessResponse(JsonNode body, HttpStatus httpStatus,
                                                                                 String responseCode) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-HttpStatus", httpStatus.toString());
         return Either.right(SuccessResponse.builder()
                 .body(body)
                 .apiResponse(ApiResponse.builder()
                         .httpStatusCode(httpStatus)
                         .responseCode(responseCode)
                         .responseMessage(SuccessCode.getMessageByCode(responseCode))
+                        .httpHeaders(headers)
                         .isError(false)
                         .build())
                 .build());

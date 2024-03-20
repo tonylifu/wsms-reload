@@ -22,9 +22,11 @@ public class StudentController {
                 .fold(
                         failureResponse -> ResponseEntity
                                 .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .headers(failureResponse.getApiResponse().getHttpHeaders())
                                 .body(failureResponse),
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .headers(successResponse.getApiResponse().getHttpHeaders())
                                 .header("location", STUDENT_PATH + "/" +
                                         successResponse.getBody().get("studentId").asText())
                                 .body(successResponse)
@@ -37,9 +39,11 @@ public class StudentController {
                 .fold(
                         failureResponse -> ResponseEntity
                                 .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .headers(failureResponse.getApiResponse().getHttpHeaders())
                                 .body(failureResponse),
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .headers(successResponse.getApiResponse().getHttpHeaders())
                                 .header("location", STUDENT_PATH + "/" +
                                         successResponse.getBody().get("studentId").asText())
                                 .body(successResponse)
@@ -52,9 +56,11 @@ public class StudentController {
                 .fold(
                         failureResponse -> ResponseEntity
                                 .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .headers(failureResponse.getApiResponse().getHttpHeaders())
                                 .body(failureResponse),
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .headers(successResponse.getApiResponse().getHttpHeaders())
                                 .header("location", STUDENT_PATH + "/" +
                                         successResponse.getBody().get("studentId").asText())
                                 .body(successResponse)
@@ -66,6 +72,7 @@ public class StudentController {
         var deleteResponse = studentService.deleteStudent(studentId);
         return ResponseEntity
                 .status(deleteResponse.getHttpStatusCode())
+                .headers(deleteResponse.getHttpHeaders())
                 .body(deleteResponse);
     }
 
@@ -76,9 +83,11 @@ public class StudentController {
                 .fold(
                         failureResponse -> ResponseEntity
                                 .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .headers(failureResponse.getApiResponse().getHttpHeaders())
                                 .body(failureResponse),
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .headers(successResponse.getApiResponse().getHttpHeaders())
                                 .header("location", STUDENT_PATH)
                                 .body(successResponse)
                 );
@@ -90,9 +99,11 @@ public class StudentController {
                 .fold(
                         failureResponse -> ResponseEntity
                                 .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .headers(failureResponse.getApiResponse().getHttpHeaders())
                                 .body(failureResponse),
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .headers(successResponse.getApiResponse().getHttpHeaders())
                                 .header("location", STUDENT_ACCOUNT_PATH +
                                         successResponse.getBody().get("studentResponse").get("studentId"))
                                 .body(successResponse)
@@ -106,9 +117,11 @@ public class StudentController {
                 .fold(
                         failureResponse -> ResponseEntity
                                 .status(failureResponse.getApiResponse().getHttpStatusCode())
+                                .headers(failureResponse.getApiResponse().getHttpHeaders())
                                 .body(failureResponse),
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
+                                .headers(successResponse.getApiResponse().getHttpHeaders())
                                 .header("location", STUDENT_ACCOUNT_PATH)
                                 .body(successResponse)
                 );

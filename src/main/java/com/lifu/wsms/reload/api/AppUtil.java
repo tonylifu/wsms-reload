@@ -47,6 +47,7 @@ public class AppUtil {
     public static final String INVALID_DOB_CODE = "902";
     //Data Persistence
     public static final String DATA_PERSISTENCE_ERROR_CODE = "950";
+    public static final String DUPLICATE_PERSISTENCE_ERROR_CODE = "951";
     public static final String UNKNOWN_ERROR_CODE = "999";
 
     private AppUtil(){}

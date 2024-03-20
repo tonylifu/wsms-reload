@@ -25,13 +25,16 @@ import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,9 +116,15 @@ public class StudentRecord implements StudentService {
             }
             studentRepository.deleteByStudentId(studentId);
             accountRepository.deleteByStudentId(studentId);
+
+            HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-HttpStatus", httpStatus.toString());
+
             return ApiResponse.builder()
                     .isError(false)
-                    .httpStatusCode(HttpStatus.NO_CONTENT)
+                    .httpStatusCode(httpStatus)
+                    .httpHeaders(headers)
                     .responseCode(TRANSACTION_SUCCESS_CODE)
                     .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_SUCCESS_CODE))
                     .build();
@@ -201,6 +210,11 @@ public class StudentRecord implements StudentService {
             Student student = createStudentEntity(createStudentRequest);
             AccountBalance accountBalance = createAccountBalanceEntity(student);
 
+            if (studentRepository.existsByStudentId(student.getStudentId())) {
+                log.error("Data integrity violation error, studentId: {} already exist", student.getStudentId());
+                return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
+            }
+
             studentRepository.save(student);
             accountRepository.save(accountBalance);
 
@@ -208,7 +222,10 @@ public class StudentRecord implements StudentService {
                     HttpStatus.CREATED, TRANSACTION_CREATED_CODE);
 
         } catch (DataIntegrityViolationException e) {
-            log.error("SQL insertion error: {}", e.getMessage());
+            log.error("Data integrity violation error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
+        } catch (DataAccessResourceFailureException e) {
+            log.error("Database connection error: {}", e.getMessage());
             return buildErrorResponse(HttpStatus.BAD_REQUEST, DATA_PERSISTENCE_ERROR_CODE);
         } catch (DataAccessException e) {
             log.error("Persistence error: {}", e.getMessage());

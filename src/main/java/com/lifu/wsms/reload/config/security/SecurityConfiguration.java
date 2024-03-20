@@ -22,7 +22,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/api/v1/sequence")
                                 .permitAll()
                                 .anyRequest()
-                                .authenticated());
+                                .permitAll());
         return http.build();
     }
 }

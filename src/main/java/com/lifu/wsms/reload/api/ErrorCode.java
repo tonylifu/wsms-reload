@@ -19,6 +19,7 @@ public enum ErrorCode {
     INVALID_DOB(INVALID_DOB_CODE, "Invalid date of birth"),
     // Add more error codes and messages as needed
     DATA_PERSISTENCE_ERROR(DATA_PERSISTENCE_ERROR_CODE, "Failed data persistence"),
+    DUPLICATE_PERSISTENCE_ERROR(DUPLICATE_PERSISTENCE_ERROR_CODE, "Duplicate request, studentId already exist"),
 
     // Dummy entry to avoid null pointer exception
     UNKNOWN_ERROR(UNKNOWN_ERROR_CODE, "Unknown error");
