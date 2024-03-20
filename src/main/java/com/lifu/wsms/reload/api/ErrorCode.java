@@ -13,6 +13,7 @@ public enum ErrorCode {
     UNAUTHENTICATED_REQUEST(FAILED_AUTHENTICATION_CODE, "Failed authentication request"),
     UNAUTHORIZED_REQUEST(FAILED_AUTHORIZATION_CODE, "Failed authorization request"),
     NOT_FOUND(RESOURCE_NOT_FOUND_CODE, "Resource was not found"),
+    INVALID_JSON_REQUEST(INVALID_JSON_REQUEST_CODE, "Invalid JSON request body"),
     //Application specifics
     INVALID_STUDENT_ID(INVALID_STUDENT_ID_CODE, "Invalid studentId"),
     INVALID_STUDENT_NAME(MISSING_NAMES_CODE, "Invalid student name"),

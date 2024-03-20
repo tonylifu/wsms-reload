@@ -67,6 +67,10 @@ public class StudentRecord implements StudentService {
             return Either.left(isValidStudentIdResult.getLeft());
         }
         try {
+            if (!studentRepository.existsByStudentId(studentId)) {
+                log.error("request error, studentID: {} does not exist", studentId);
+                return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
+            }
             return Either.right(
                     studentRepository.findByStudentId(studentId)
                             .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
@@ -74,7 +78,7 @@ public class StudentRecord implements StudentService {
                             .orElseThrow(() -> new RuntimeException("request failed"))
             );
         } catch (DataAccessException e) {
-            log.error("update request error => {}", e.getMessage());
+            log.error("find request error => {}", e.getMessage());
             return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
         } catch (Exception e) {
             log.error("an unknown error occurred => {}", e.getMessage());

@@ -34,6 +34,7 @@ public class AppUtil {
     public static final String BAD_REQUEST_INVALID_PARAMS_CODE = "402";
     public static final String FAILED_AUTHORIZATION_CODE = "403";
     public static final String RESOURCE_NOT_FOUND_CODE = "404";
+    public static final String INVALID_JSON_REQUEST_CODE = "407";
     //Application Specific Errors
     //Success
     public static final String TRANSACTION_OKAY_CODE = "000";
