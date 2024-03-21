@@ -23,10 +23,10 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Override
     Page<Student> findAll(Pageable pageable);
 
-    @Query("SELECT s, a.balance FROM Student s JOIN AccountBalance a ON s.studentId = a.studentId WHERE s.studentId = :studentId")
+    @Query("SELECT s, a.balance FROM Student s JOIN StudentAccount a ON s.studentId = a.studentId WHERE s.studentId = :studentId")
     List<Object[]> findStudentAndAccountBalanceByStudentId(@Param("studentId") String studentId);
 
-    @Query("SELECT s, a.balance FROM Student s JOIN AccountBalance a ON s.studentId = a.studentId")
+    @Query("SELECT s, a.balance FROM Student s JOIN StudentAccount a ON s.studentId = a.studentId")
     Page<Object[]> findAllStudentsAndAccountBalances(Pageable pageable);
 
     boolean existsByStudentId(String studentId);

@@ -2,7 +2,6 @@ package com.lifu.wsms.reload.service.student;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.ErrorCode;
 import com.lifu.wsms.reload.api.StudentService;
 import com.lifu.wsms.reload.api.SuccessCode;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
@@ -14,8 +13,9 @@ import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponses;
 import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import com.lifu.wsms.reload.dto.response.student.StudentResponses;
-import com.lifu.wsms.reload.entity.finance.AccountBalance;
+import com.lifu.wsms.reload.entity.finance.StudentAccount;
 import com.lifu.wsms.reload.entity.student.Student;
+import com.lifu.wsms.reload.enums.StudentStatus;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
@@ -34,10 +34,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
 import static com.lifu.wsms.reload.service.ApiService.*;
@@ -225,7 +223,7 @@ public class StudentRecord implements StudentService {
     private Either<FailureResponse, SuccessResponse> createStudentAndAccount(CreateStudentRequest createStudentRequest) {
         try {
             Student student = createStudentEntity(createStudentRequest);
-            AccountBalance accountBalance = createAccountBalanceEntity(student);
+            StudentAccount accountBalance = createAccountBalanceEntity(student);
 
             if (studentRepository.existsByStudentId(student.getStudentId())) {
                 log.error("Data integrity violation error, studentId: {} already exist", student.getStudentId());
@@ -266,6 +264,7 @@ public class StudentRecord implements StudentService {
         long now = AppUtil.convertLocalDateToLong(LocalDate.now());
         student.setCreatedAt(now);
         student.setLastUpdateAt(now);
+        student.setStudentStatus(StudentStatus.CREATED);
 
         return student;
     }
@@ -277,12 +276,13 @@ public class StudentRecord implements StudentService {
      * @param student The Student object for which the AccountBalance entity will be created.
      * @return The newly created AccountBalance entity initialized with default values and information from the Student.
      */
-    private AccountBalance createAccountBalanceEntity(Student student) {
-        return AccountBalance.builder()
+    private StudentAccount createAccountBalanceEntity(Student student) {
+        return StudentAccount.builder()
                 .studentId(student.getStudentId())
                 .balance(BigDecimal.ZERO)
                 .createdAt(student.getCreatedAt())
                 .lastUpdateAt(student.getLastUpdateAt())
+                .lastActionBy(student.getActionBy())
                 .build();
     }
 

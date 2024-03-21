@@ -4,12 +4,11 @@ import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.enums.StudentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "students")
@@ -55,7 +54,7 @@ public class Student {
     @Column(nullable = false)
     private boolean isDisabled;
 
-    private String disabilityDetail;
+    private String disabilityDetails;
 
     @Column(nullable = false)
     private long createdAt;
@@ -63,6 +62,13 @@ public class Student {
     @Column(nullable = false)
     private long lastUpdateAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StudentStatus studentStatus;
+
     @Column(nullable = false)
     private String actionBy;
+
+    @Column(nullable = false)
+    private String lastActionBy;
 }

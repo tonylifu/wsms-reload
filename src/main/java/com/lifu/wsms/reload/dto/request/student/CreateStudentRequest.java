@@ -25,4 +25,5 @@ public class CreateStudentRequest {
     private LegalGuardian legalGuardian;
     private String currentGrade;
     private boolean isDisabled;
+    private String disabilityDetails;
 }

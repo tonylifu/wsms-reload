@@ -138,6 +138,7 @@ public class ApiService {
     public static Student populateStudentForUpdate(Student student, UpdateStudentRequest updateStudentRequest) {
         // Set last update date
         student.setLastUpdateAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
+        student.setLastActionBy(AppUtil.getUserFromSecurityContext());
 
         // Transfer non-null fields from updateStudentRequest to student
         if (updateStudentRequest.getFirstName() != null) {
@@ -156,6 +157,9 @@ public class ApiService {
         if (updateStudentRequest.getGender() != null) {
             student.setGender(updateStudentRequest.getGender());
         }
+        if (updateStudentRequest.getStudentStatus() != null) {
+            student.setStudentStatus(updateStudentRequest.getStudentStatus());
+        }
         if (updateStudentRequest.getAddress() != null) {
             student.setAddress(updateStudentRequest.getAddress());
         }
@@ -172,7 +176,7 @@ public class ApiService {
             student.setDisabled(true);
         }
         if (updateStudentRequest.getDisabilityDetails() != null) {
-            student.setDisabilityDetail(updateStudentRequest.getDisabilityDetails());
+            student.setDisabilityDetails(updateStudentRequest.getDisabilityDetails());
         }
         return student;
     }
