@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class StudentAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "student_accounts_sequence")
-    @SequenceGenerator(name = "student_accounts_sequence", sequenceName = "student_accounts_sequence",
+    @SequenceGenerator(name = "student_accounts_sequence", sequenceName = "student_accounts_id_sequence",
             allocationSize = 1)
     private Long id;
 

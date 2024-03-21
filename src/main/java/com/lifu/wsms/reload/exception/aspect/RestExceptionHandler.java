@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.exception;
+package com.lifu.wsms.reload.exception.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
