@@ -51,7 +51,6 @@ public class Student {
     @Column(nullable = false)
     private String currentGrade;
 
-    @Column(nullable = false)
     private boolean isDisabled;
 
     private String disabilityDetails;

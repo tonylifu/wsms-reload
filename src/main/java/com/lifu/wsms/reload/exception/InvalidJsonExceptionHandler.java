@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.exception.aspect;
+package com.lifu.wsms.reload.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
 
 @Slf4j
 @RestControllerAdvice
-public class RestExceptionHandler {
+public class InvalidJsonExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error("Invalid json request => {}", e.getMessage());

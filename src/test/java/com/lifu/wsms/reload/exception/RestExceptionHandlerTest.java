@@ -43,7 +43,7 @@ class RestExceptionHandlerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Invalid JSON request body")))
                 .andExpect(jsonPath("$.apiResponse.responseCode").value("407"))
-                .andExpect(jsonPath("$.apiResponse.responseMessage").value("Invalid JSON request body"))
+                .andExpect(jsonPath("$.apiResponse.responseMessage").value("Invalid JSON request body: [gender, studentStatus]"))
                 .andExpect(jsonPath("$.apiResponse.httpStatusCode").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.apiResponse.error").value(true));
     }
