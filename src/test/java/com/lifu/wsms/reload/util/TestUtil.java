@@ -9,6 +9,7 @@ import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -130,5 +131,54 @@ public class TestUtil {
             twentyCreateStudentRequests.add(createStudentRequest);
         }
         return twentyCreateStudentRequests;
+    }
+
+    /**
+     * Generates a JSON string representing a sample request for creating a student.
+     * The generated JSON string contains dummy data for demonstration purposes.
+     *
+     * @return a JSON string representing a sample request for creating a student.
+     */
+    public static String getCreateStudentRequestJsonString() {
+        var request = "{\n" +
+                "    \"studentId\": \"KSK-2024-1234\",\n" +
+                "    \"firstName\": \"David\",\n" +
+                "    \"middleName\": \"Owogoga\",\n" +
+                "    \"lastName\": \"Lifu\",\n" +
+                "    \"dob\": \"2010-01-01\",\n" +
+                "    \"gender\": \"male\",\n" +
+                "    \"address\": {\n" +
+                "        \"houseNumber\": \"21\",\n" +
+                "        \"streetName\": \"Lyon Crescent\",\n" +
+                "        \"area\": \"Stirling\",\n" +
+                "        \"localGovtArea\": \"Stirling\",\n" +
+                "        \"state\": \"Scotland\",\n" +
+                "        \"country\": \"United Kingdom\"\n" +
+                "    },\n" +
+                "    \"contact\": {\n" +
+                "        \"email\": \"davidlifu@gmail.com\",\n" +
+                "        \"mobilePhone\": \"07766433489\",\n" +
+                "        \"telephone\": \"\"\n" +
+                "    },\n" +
+                "    \"legalGuardian\": {\n" +
+                "        \"biologicalParentListed\": true,\n" +
+                "        \"father\": \"Anthony Lifu\",\n" +
+                "        \"fatherContactInformation\": {\n" +
+                "            \"email\": \"tlifu75@gmail.com\",\n" +
+                "            \"mobilePhone\": \"07766433489\",\n" +
+                "            \"telephone\": \"\"\n" +
+                "        },\n" +
+                "        \"mother\": \"\",\n" +
+                "        \"motherContactInformation\": {\n" +
+                "            \"email\": \"ladilifu@gmail.com\",\n" +
+                "            \"mobilePhone\": \"07766433489\",\n" +
+                "            \"telephone\": \"\"\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"currentGrade\": \"SSS120241\",\n" +
+                "    \"isDisabled\": false,\n" +
+                "    \"disabilityDetails\": \"NA\"\n" +
+                "}";
+        return request;
     }
 }

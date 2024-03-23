@@ -16,7 +16,7 @@ class SequenceServiceGeneratorTest {
 
     @Test
     void getNextSequenceValue() {
-        var sequenceName = "students_sequence";
+        var sequenceName = "students_id_sequence";
         var sequence = sequenceService.getNextSequenceValue(sequenceName);
         assertTrue(sequence.isPresent());
         var sequenceValue = sequence.get();

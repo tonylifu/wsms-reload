@@ -16,6 +16,7 @@ import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
@@ -121,14 +122,7 @@ public class ApiService {
     public static Either<FailureResponse, Boolean> validateStudentId(String studentId) {
         if (studentId == null || studentId.isEmpty() || !AppUtil.isValidStudentId(studentId)) {
             log.error("invalid studentId => {}", studentId);
-            return Either.left(FailureResponse.builder()
-                    .apiResponse(ApiResponse.builder()
-                            .isError(true)
-                            .httpStatusCode(HttpStatus.BAD_REQUEST)
-                            .responseCode(INVALID_STUDENT_ID_CODE)
-                            .responseMessage(ErrorCode.getMessageByCode(INVALID_STUDENT_ID_CODE))
-                            .build())
-                    .build());
+            return Either.left(buildErrorResponse(HttpStatus.BAD_REQUEST, INVALID_STUDENT_ID_CODE).getLeft());
         }
         return Either.right(true);
     }
@@ -144,6 +138,7 @@ public class ApiService {
     public static Student populateStudentForUpdate(Student student, UpdateStudentRequest updateStudentRequest) {
         // Set last update date
         student.setLastUpdateAt(AppUtil.convertLocalDateToLong(LocalDate.now()));
+        student.setLastActionBy(AppUtil.getUserFromSecurityContext());
 
         // Transfer non-null fields from updateStudentRequest to student
         if (updateStudentRequest.getFirstName() != null) {
@@ -162,6 +157,9 @@ public class ApiService {
         if (updateStudentRequest.getGender() != null) {
             student.setGender(updateStudentRequest.getGender());
         }
+        if (updateStudentRequest.getStudentStatus() != null) {
+            student.setStudentStatus(updateStudentRequest.getStudentStatus());
+        }
         if (updateStudentRequest.getAddress() != null) {
             student.setAddress(updateStudentRequest.getAddress());
         }
@@ -178,7 +176,7 @@ public class ApiService {
             student.setDisabled(true);
         }
         if (updateStudentRequest.getDisabilityDetails() != null) {
-            student.setDisabilityDetail(updateStudentRequest.getDisabilityDetails());
+            student.setDisabilityDetails(updateStudentRequest.getDisabilityDetails());
         }
         return student;
     }
@@ -237,12 +235,15 @@ public class ApiService {
      */
     public static Either<FailureResponse, SuccessResponse> buildErrorResponse(HttpStatus httpStatus,
                                                                               String responseCode) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-HttpStatus", httpStatus.toString());
         return Either.left(FailureResponse.builder()
                 .apiResponse(ApiResponse.builder()
                         .isError(true)
                         .httpStatusCode(httpStatus)
                         .responseCode(responseCode)
                         .responseMessage(ErrorCode.getMessageByCode(responseCode))
+                        .httpHeaders(headers)
                         .build())
                 .build());
     }
@@ -259,12 +260,15 @@ public class ApiService {
      */
     public static Either<FailureResponse, SuccessResponse> buildSuccessResponse(JsonNode body, HttpStatus httpStatus,
                                                                                 String responseCode) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-HttpStatus", httpStatus.toString());
         return Either.right(SuccessResponse.builder()
                 .body(body)
                 .apiResponse(ApiResponse.builder()
                         .httpStatusCode(httpStatus)
                         .responseCode(responseCode)
                         .responseMessage(SuccessCode.getMessageByCode(responseCode))
+                        .httpHeaders(headers)
                         .isError(false)
                         .build())
                 .build());

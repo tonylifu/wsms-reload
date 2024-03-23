@@ -2,7 +2,6 @@ package com.lifu.wsms.reload.service.student;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.ErrorCode;
 import com.lifu.wsms.reload.api.StudentService;
 import com.lifu.wsms.reload.api.SuccessCode;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
@@ -14,8 +13,9 @@ import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponses;
 import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import com.lifu.wsms.reload.dto.response.student.StudentResponses;
-import com.lifu.wsms.reload.entity.finance.AccountBalance;
+import com.lifu.wsms.reload.entity.finance.StudentAccount;
 import com.lifu.wsms.reload.entity.student.Student;
+import com.lifu.wsms.reload.enums.StudentStatus;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
@@ -25,20 +25,20 @@ import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
-import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
-import static com.lifu.wsms.reload.service.ApiService.buildSuccessResponse;
+import static com.lifu.wsms.reload.service.ApiService.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -59,15 +59,24 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> findStudent(String studentId) {
+        studentId = studentId.strip().toUpperCase();
+        var isValidStudentIdResult = validateStudentId(studentId);
+        if (isValidStudentIdResult.isLeft()) {
+            return Either.left(isValidStudentIdResult.getLeft());
+        }
         try {
+            if (!studentRepository.existsByStudentId(studentId)) {
+                log.error("request error, studentID: {} does not exist", studentId);
+                return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
+            }
             return Either.right(
-                    studentRepository.findByStudentId(studentId.strip().toUpperCase())
+                    studentRepository.findByStudentId(studentId)
                             .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
                                     HttpStatus.OK, TRANSACTION_OKAY_CODE).get())
                             .orElseThrow(() -> new RuntimeException("request failed"))
             );
         } catch (DataAccessException e) {
-            log.error("update request error => {}", e.getMessage());
+            log.error("find request error => {}", e.getMessage());
             return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
         } catch (Exception e) {
             log.error("an unknown error occurred => {}", e.getMessage());
@@ -92,7 +101,13 @@ public class StudentRecord implements StudentService {
                     );
         } catch (DataAccessException e) {
             log.error("update error => {}", e.getMessage());
-            return buildErrorResponse(HttpStatus.NO_CONTENT, DATA_PERSISTENCE_ERROR_CODE);
+            return buildErrorResponse(HttpStatus.NOT_FOUND, DATA_PERSISTENCE_ERROR_CODE);
+        } catch (RuntimeException e) {
+            log.error("resource not found error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE);
+        } catch (Exception e) {
+            log.error("server error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE);
         }
     }
 
@@ -101,22 +116,34 @@ public class StudentRecord implements StudentService {
     public ApiResponse deleteStudent(String studentId) {
         try {
             studentId = studentId.strip().toUpperCase();
+            var isValidStudentIdResult = validateStudentId(studentId);
+            if (isValidStudentIdResult.isLeft()) {
+                return isValidStudentIdResult.getLeft().getApiResponse();
+            }
+            if (!studentRepository.existsByStudentId(studentId)){
+                log.error("resource not found for studentId => {}", studentId);
+                return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+            }
             studentRepository.deleteByStudentId(studentId);
             accountRepository.deleteByStudentId(studentId);
+
+            HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-HttpStatus", httpStatus.toString());
+
             return ApiResponse.builder()
                     .isError(false)
-                    .httpStatusCode(HttpStatus.NO_CONTENT)
+                    .httpStatusCode(httpStatus)
+                    .httpHeaders(headers)
                     .responseCode(TRANSACTION_SUCCESS_CODE)
                     .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_SUCCESS_CODE))
                     .build();
         } catch (DataAccessException e) {
             log.error("delete error => {}", e.getMessage());
-            return ApiResponse.builder()
-                    .isError(true)
-                    .httpStatusCode(HttpStatus.NOT_FOUND)
-                    .responseCode(RESOURCE_NOT_FOUND_CODE)
-                    .responseMessage(ErrorCode.getMessageByCode(RESOURCE_NOT_FOUND_CODE))
-                    .build();
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("server error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
         }
     }
 
@@ -142,8 +169,13 @@ public class StudentRecord implements StudentService {
     @Override
     public Either<FailureResponse, SuccessResponse> findStudentAndAccount(String studentId) {
         try {
+            studentId = studentId.strip().toUpperCase();
+            var isValidStudentIdResult = validateStudentId(studentId);
+            if (isValidStudentIdResult.isLeft()) {
+                return Either.left(isValidStudentIdResult.getLeft());
+            }
             return Either.right(
-                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId.strip().toUpperCase())
+                    studentRepository.findStudentAndAccountBalanceByStudentId(studentId)
                             .stream()
                             .map(objects -> {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =
@@ -191,7 +223,12 @@ public class StudentRecord implements StudentService {
     private Either<FailureResponse, SuccessResponse> createStudentAndAccount(CreateStudentRequest createStudentRequest) {
         try {
             Student student = createStudentEntity(createStudentRequest);
-            AccountBalance accountBalance = createAccountBalanceEntity(student);
+            StudentAccount accountBalance = createAccountBalanceEntity(student);
+
+            if (studentRepository.existsByStudentId(student.getStudentId())) {
+                log.error("Data integrity violation error, studentId: {} already exist", student.getStudentId());
+                return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
+            }
 
             studentRepository.save(student);
             accountRepository.save(accountBalance);
@@ -200,7 +237,10 @@ public class StudentRecord implements StudentService {
                     HttpStatus.CREATED, TRANSACTION_CREATED_CODE);
 
         } catch (DataIntegrityViolationException e) {
-            log.error("SQL insertion error: {}", e.getMessage());
+            log.error("Data integrity violation error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
+        } catch (DataAccessResourceFailureException e) {
+            log.error("Database connection error: {}", e.getMessage());
             return buildErrorResponse(HttpStatus.BAD_REQUEST, DATA_PERSISTENCE_ERROR_CODE);
         } catch (DataAccessException e) {
             log.error("Persistence error: {}", e.getMessage());
@@ -224,6 +264,7 @@ public class StudentRecord implements StudentService {
         long now = AppUtil.convertLocalDateToLong(LocalDate.now());
         student.setCreatedAt(now);
         student.setLastUpdateAt(now);
+        student.setStudentStatus(StudentStatus.CREATED);
 
         return student;
     }
@@ -235,12 +276,13 @@ public class StudentRecord implements StudentService {
      * @param student The Student object for which the AccountBalance entity will be created.
      * @return The newly created AccountBalance entity initialized with default values and information from the Student.
      */
-    private AccountBalance createAccountBalanceEntity(Student student) {
-        return AccountBalance.builder()
+    private StudentAccount createAccountBalanceEntity(Student student) {
+        return StudentAccount.builder()
                 .studentId(student.getStudentId())
                 .balance(BigDecimal.ZERO)
                 .createdAt(student.getCreatedAt())
                 .lastUpdateAt(student.getLastUpdateAt())
+                .lastActionBy(student.getActionBy())
                 .build();
     }
 

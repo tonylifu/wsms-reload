@@ -5,6 +5,7 @@ import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.enums.StudentStatus;
 import lombok.*;
 
 @Getter
@@ -19,10 +20,13 @@ public class StudentResponse {
     private String lastName;
     private String dob;
     private Gender gender;
+    private StudentStatus studentStatus;
     private Address address;
     private Contact contact;
     private LegalGuardian legalGuardian;
     private String currentGrade;
     private boolean disabled;
+    private String disabilityDetails;
     private String actionBy;
+    private String lastActionBy;
 }

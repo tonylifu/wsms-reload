@@ -13,11 +13,12 @@ public interface CreateStudentRequestToStudentMapper {
     CreateStudentRequestToStudentMapper INSTANCE = Mappers.getMapper(CreateStudentRequestToStudentMapper.class);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "disabilityDetail", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUpdateAt", ignore = true)
+    @Mapping(target = "studentStatus", ignore = true)
     @Mapping(target = "dob", source = "dob", dateFormat = "yyyy-MM-dd", qualifiedByName = "localDateStringToLong")
     @Mapping(target = "actionBy", expression = "java(mapUserFromSecurityContext())")
+    @Mapping(target = "lastActionBy", expression = "java(mapUserFromSecurityContext())")
     Student toStudent(CreateStudentRequest createStudentRequest);
 
     @Named("localDateStringToLong")

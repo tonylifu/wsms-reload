@@ -14,8 +14,10 @@ import java.time.Year;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -24,6 +26,7 @@ public class AppUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // Regular expression pattern for the studentId format
     private static final String STUDENT_ID_PATTERN = "KSK-\\d{4}-\\d{4}";
+    private static final Pattern QUOTED_STRING_PATTERN = Pattern.compile("\"([^\"]*)\"");
 
     // Pattern object for compiling the regular expression
     private static final Pattern STUDENT_ID_REGEX = Pattern.compile(STUDENT_ID_PATTERN);
@@ -34,6 +37,8 @@ public class AppUtil {
     public static final String BAD_REQUEST_INVALID_PARAMS_CODE = "402";
     public static final String FAILED_AUTHORIZATION_CODE = "403";
     public static final String RESOURCE_NOT_FOUND_CODE = "404";
+    public static final String INVALID_JSON_REQUEST_CODE = "407";
+    public static final String PSQL_PERSISTENCE_ERROR_CODE = "408";
     //Application Specific Errors
     //Success
     public static final String TRANSACTION_OKAY_CODE = "000";
@@ -47,6 +52,7 @@ public class AppUtil {
     public static final String INVALID_DOB_CODE = "902";
     //Data Persistence
     public static final String DATA_PERSISTENCE_ERROR_CODE = "950";
+    public static final String DUPLICATE_PERSISTENCE_ERROR_CODE = "951";
     public static final String UNKNOWN_ERROR_CODE = "999";
 
     private AppUtil(){}
@@ -195,4 +201,22 @@ public class AppUtil {
         }
     }
 
+    public static List<String> extractQuotedStrings(String message) {
+        if (message == null) {
+            return List.of();
+        }
+        int count = 20;
+        List<String> extractedQuotes = new ArrayList<>();
+        var matcher = QUOTED_STRING_PATTERN.matcher(message);
+        while (matcher.find()) {
+            if (count == 0) {
+                break;
+            }
+            var quotedString = matcher.group(1);
+            System.out.println("Quoted string: " + quotedString);
+            extractedQuotes.add(quotedString);
+            count--;
+        }
+        return extractedQuotes;
+    }
 }

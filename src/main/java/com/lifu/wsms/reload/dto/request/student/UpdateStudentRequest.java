@@ -5,6 +5,7 @@ import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.enums.StudentStatus;
 import lombok.*;
 
 import java.util.Objects;
@@ -28,4 +29,5 @@ public class UpdateStudentRequest {
     private String currentGrade;
     private boolean isDisabled;
     private String disabilityDetails;
+    private StudentStatus studentStatus;
 }

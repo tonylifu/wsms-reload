@@ -5,6 +5,9 @@ import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.enums.Gender;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 import lombok.*;
 
 @Getter
@@ -23,6 +26,9 @@ public class CreateStudentRequest {
     private Address address;
     private Contact contact;
     private LegalGuardian legalGuardian;
+    @NotEmpty(message = "currentGrade must not be blank")
+    @NotNull
     private String currentGrade;
     private boolean isDisabled;
+    private String disabilityDetails;
 }
