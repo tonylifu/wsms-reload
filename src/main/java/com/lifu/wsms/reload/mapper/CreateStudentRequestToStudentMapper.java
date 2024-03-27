@@ -13,6 +13,7 @@ public interface CreateStudentRequestToStudentMapper {
     CreateStudentRequestToStudentMapper INSTANCE = Mappers.getMapper(CreateStudentRequestToStudentMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "studentId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUpdateAt", ignore = true)
     @Mapping(target = "studentStatus", ignore = true)
