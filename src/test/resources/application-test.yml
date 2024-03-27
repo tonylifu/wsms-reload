@@ -1,18 +1,15 @@
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/webstartrek?currentSchema=kusaki_test
-#    username: *********
-#    password: ********
-#    driver-class-name: org.postgresql.Driver
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#    show-sql: true
 server:
   port: 9085
 
 # H2 Configuration
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/lifu #http://localhost:8080/realms/wsms-rest-api
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+          audiences:
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -20,4 +17,17 @@ spring:
     password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+
+logging:
+  level:
+    org.springframework.security: trace
+
+  #jwt
+jwt:
+  rsa-private-key: classpath:certs/privateKey.pem
+  rsa-public-key: classpath:certs/publicKey.pem
+  auth:
+    converter:
+      resource-id: lifu-rest-api
+      principal-attribute: preferred_username
 
