@@ -11,9 +11,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-    private final JwtAuthConverter jwtAuthConverter;
-
-//    @Order(1)
+//    private final JwtAuthConverter jwtAuthConverter;
+//
+////    @Order(1)
 //    @Bean
 //    public SecurityFilterChain jwtSecurityFilterChain2(HttpSecurity http) throws Exception {
 //        http.csrf(AbstractHttpConfigurer::disable)
