@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +31,7 @@ class AppUtilTest {
 
     @Test
     void isValidStudentId() {
-        String validStudentId = AppUtil.generateStudentId();
+        String validStudentId = AppUtil.generateStudentId(Year.now().getValue(),"0001");
         String inValidStudentId = "KSK/2024/20002020";
         assertTrue(AppUtil.isValidStudentId(validStudentId));
         assertFalse(AppUtil.isValidStudentId(inValidStudentId));

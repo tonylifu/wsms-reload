@@ -25,7 +25,6 @@ public class TestUtil {
      */
     public static CreateStudentRequest getCreateStudentRequest() {
         return CreateStudentRequest.builder()
-                .studentId("KSK-2024-1234")
                 .firstName("David")
                 .middleName("Owogoga")
                 .lastName("Lifu")
@@ -123,11 +122,11 @@ public class TestUtil {
     public static List<CreateStudentRequest> getTwentyCreateStudentsRequests() {
         List<CreateStudentRequest> twentyCreateStudentRequests = new ArrayList<>();
         //students KSK/2024/0001 - KSK/2024/0020
-        var prefix = "KSK-2024-";
+        //var prefix = "KSK-2024-";
         for (int i = 1; i <= 20; i++) {
-            String studentId = prefix + String.format("%04d", i);
+            //String studentId = prefix + String.format("%04d", i);
             var createStudentRequest = getCreateStudentRequest();
-            createStudentRequest.setStudentId(studentId);
+            //createStudentRequest.setStudentId(studentId);
             twentyCreateStudentRequests.add(createStudentRequest);
         }
         return twentyCreateStudentRequests;

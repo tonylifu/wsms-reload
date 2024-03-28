@@ -17,7 +17,6 @@ import lombok.*;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateStudentRequest {
-    private String studentId;
     private String firstName;
     private String middleName;
     private String lastName;

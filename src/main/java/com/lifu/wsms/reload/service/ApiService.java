@@ -50,11 +50,6 @@ public class ApiService {
                     .build());
         }
 
-        var isValidStudentId = validateStudentId(createStudentRequest.getStudentId());
-        if (isValidStudentId.isLeft()) {
-            return Either.left(isValidStudentId.getLeft());
-        }
-
         if (createStudentRequest.getFirstName() == null || createStudentRequest.getFirstName().isEmpty()
         || createStudentRequest.getLastName() == null || createStudentRequest.getLastName().isEmpty()) {
             return Either.left(FailureResponse.builder()

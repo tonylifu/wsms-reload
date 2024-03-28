@@ -1,22 +1,22 @@
-package com.lifu.wsms.reload.service.student;
+package com.lifu.wsms.reload.service;
 
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
-import com.lifu.wsms.reload.service.ApiService;
 import com.lifu.wsms.reload.util.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class StudentRecordServiceTest {
+@ActiveProfiles("test")
+class ApiServiceTest {
     @Test
     void validateCreateStudent_happy() {
         var createStudent = TestUtil.getCreateStudentRequest();
@@ -29,7 +29,7 @@ class StudentRecordServiceTest {
     @Test
     void validateCreateStudent_sad() {
         var createStudent = TestUtil.getCreateStudentRequest();
-        createStudent.setStudentId(null);
+        createStudent.setLastName(null);
         var result = ApiService.validateCreateStudent(createStudent);
         assertTrue(result.isLeft());
         var failureResponse = result.getLeft();

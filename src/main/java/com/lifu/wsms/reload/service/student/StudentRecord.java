@@ -15,10 +15,12 @@ import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import com.lifu.wsms.reload.dto.response.student.StudentResponses;
 import com.lifu.wsms.reload.entity.finance.StudentAccount;
 import com.lifu.wsms.reload.entity.student.Student;
+import com.lifu.wsms.reload.entity.student.StudentNumber;
 import com.lifu.wsms.reload.enums.StudentStatus;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
+import com.lifu.wsms.reload.repository.StudentNumberRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
 import com.lifu.wsms.reload.service.ApiService;
 import io.vavr.control.Either;
@@ -35,7 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
 import static com.lifu.wsms.reload.service.ApiService.*;
@@ -46,13 +50,11 @@ public class StudentRecord implements StudentService {
     private final StudentRepository studentRepository;
     private final AccountRepository accountRepository;
     private final ObjectMapper objectMapper;
+    private final StudentNumberService studentNumberService;
 
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
-        if (createStudentRequest.getStudentId() != null) {
-            createStudentRequest.setStudentId(createStudentRequest.getStudentId().strip().toUpperCase());
-        }
         return ApiService.validateCreateStudent(createStudentRequest)
                 .fold(Either::left, validatedRequest -> createStudentAndAccount(createStudentRequest));
     }
@@ -126,6 +128,10 @@ public class StudentRecord implements StudentService {
             }
             studentRepository.deleteByStudentId(studentId);
             accountRepository.deleteByStudentId(studentId);
+            String[] studentIdArray = studentId.strip().split("-");
+            String studentNumberIdStr = studentIdArray[1].strip() + studentIdArray[2].strip();
+            Long studentNumberId = Long.parseLong(studentNumberIdStr);
+            studentNumberService.deleteStudentNumberById(studentNumberId);
 
             HttpStatus httpStatus = HttpStatus.NO_CONTENT;
             HttpHeaders headers = new HttpHeaders();
@@ -261,6 +267,9 @@ public class StudentRecord implements StudentService {
         Student student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudentRequest);
 
         // Set the creation and last update timestamps to the current time
+        String nextStudentId = AppUtil.generateStudentId(Year.now().getValue(),
+                studentNumberService.generateNextStudentId(Year.now().getValue()));
+        student.setStudentId(nextStudentId);
         long now = AppUtil.convertLocalDateToLong(LocalDate.now());
         student.setCreatedAt(now);
         student.setLastUpdateAt(now);
