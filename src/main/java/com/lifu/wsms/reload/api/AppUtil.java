@@ -3,11 +3,14 @@ package com.lifu.wsms.reload.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.lifu.wsms.reload.entity.student.Student;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Year;
@@ -17,12 +20,17 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class AppUtil {
+public class AppUtil implements ApplicationContextAware {
+    private static JdbcTemplate jdbcTemplate;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        jdbcTemplate = applicationContext.getBean(JdbcTemplate.class);
+    }
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // Regular expression pattern for the studentId format
     private static final String STUDENT_ID_PATTERN = "KSK-\\d{4}-\\d{4}";
@@ -86,12 +94,11 @@ public class AppUtil {
 
     /**
      * Method to generate a studentId following the specified format
+     * @param studentNumber
      * @return String
      */
-    public static String generateStudentId() {
-        int currentYear = Year.now().getValue();
-        int randomNumber = generateRandomNumber();
-        return "KSK-" + currentYear + "-" + randomNumber;
+    public static String generateStudentId(int currentYear, String studentNumber) {
+        return "KSK-" + currentYear + "-" + studentNumber;
     }
 
     /**

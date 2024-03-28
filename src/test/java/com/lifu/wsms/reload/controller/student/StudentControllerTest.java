@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
 import static com.lifu.wsms.reload.controller.student.StudentController.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -38,10 +38,10 @@ class StudentControllerTest {
     }
 
     @Test
+    @DirtiesContext
     void createAndReadAndUpdateAndDeleteStudent() throws Exception {
         //Given => createstudentRequest object
         CreateStudentRequest createStudentRequest = TestUtil.getCreateStudentRequest();
-        String studentId = createStudentRequest.getStudentId();
 
         //When => create student and return location in the header
         String location = mockMvc.perform(
@@ -56,13 +56,12 @@ class StudentControllerTest {
         //When => Read the student by studentId
         String jsonResponse = this.mockMvc.perform(get(location))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body.studentId").value(studentId))
                 .andReturn().getResponse().getContentAsString();
         JsonNode jsonNodeResponse = objectMapper.readTree(jsonResponse);
         JsonNode jsonNodeResponseBody = jsonNodeResponse.get("body");
 
         //Then
-        assertEquals(studentId, jsonNodeResponseBody.get("studentId").asText());
+        String studentId = jsonNodeResponseBody.get("studentId").asText();
         assertEquals("David", jsonNodeResponseBody.get("firstName").asText());
         assertEquals("Lifu", jsonNodeResponseBody.get("lastName").asText());
         assertEquals(Gender.MALE.name(), jsonNodeResponseBody.get("gender").asText());
