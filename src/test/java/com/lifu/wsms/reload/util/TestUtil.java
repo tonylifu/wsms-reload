@@ -6,14 +6,19 @@ import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
+import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
+import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.enums.UserRole;
+import com.lifu.wsms.reload.enums.UserStatus;
 import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class TestUtil {
     private TestUtil() {}
@@ -179,5 +184,26 @@ public class TestUtil {
                 "    \"disabilityDetails\": \"NA\"\n" +
                 "}";
         return request;
+    }
+
+    public static CreateUserRequest getCreateUserDTO() {
+        return CreateUserRequest.builder()
+                .username("user1")
+                .mobile("077664333489")
+                .email("test1@test.com")
+                .designation("Administrator")
+                .status(UserStatus.CREATED)
+                .roles(Set.of(UserRole.ADMIN, UserRole.BURSAR))
+                .build();
+    }
+
+    public static UpdateUserRequest getUpdateUserDTO() {
+        return UpdateUserRequest.builder()
+                .username("user2")
+                .mobile("01234456677")
+                .email("test2@test.com")
+                .designation("Bursar")
+                .roles(Set.of(UserRole.BURSAR))
+                .build();
     }
 }
