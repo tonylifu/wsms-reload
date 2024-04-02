@@ -6,6 +6,7 @@ import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.entity.user.UserGroup;
 import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.enums.UserRole;
+import com.lifu.wsms.reload.enums.UserRolesGroup;
 import com.lifu.wsms.reload.enums.UserStatus;
 import lombok.*;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class UserResponse {
     private Gender gender;
     private Address address;
     private Contact contact;
-    private UserGroup userGroup;
+    private UserRolesGroup userGroup;
     private long createdAt;
     private long lastModifiedAt;
     private String actionBy;

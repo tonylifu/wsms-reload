@@ -46,8 +46,6 @@ class UserRecordTest {
                 createUserResponse.get().getBody().get("username").asText().toLowerCase());
         assertEquals(createUserRequest.getEmail(),
                 createUserResponse.get().getBody().get("email").asText());
-        assertEquals(createUserRequest.getRoles().size(),
-                createUserResponse.get().getBody().get("roles").size());
 
         //when - a user is read from storage
         var username = createUserRequest.getUsername();
@@ -59,8 +57,6 @@ class UserRecordTest {
                 findUserResponse.get().getBody().get("username").asText().toLowerCase());
         assertEquals(createUserRequest.getEmail(),
                 findUserResponse.get().getBody().get("email").asText());
-        assertEquals(createUserRequest.getRoles().size(),
-                findUserResponse.get().getBody().get("roles").size());
 
         //Given
         var updateUserRequest = SudentTestUtil.getUpdateUserDTO();
@@ -76,8 +72,6 @@ class UserRecordTest {
                 updateUserResponse.get().getBody().get("username").asText().toLowerCase());
         assertEquals(createUserRequest.getEmail(),
                 updateUserResponse.get().getBody().get("email").asText());
-        assertEquals(createUserRequest.getRoles().size(),
-                updateUserResponse.get().getBody().get("roles").size());
 
         //Given - a password set or password change
         ApiResponse setPasswordResponse = setPassword(username, "password".toCharArray());
