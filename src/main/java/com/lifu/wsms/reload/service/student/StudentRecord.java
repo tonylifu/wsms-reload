@@ -2,7 +2,8 @@ package com.lifu.wsms.reload.service.student;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.StudentService;
+import com.lifu.wsms.reload.api.contract.StudentNumberService;
+import com.lifu.wsms.reload.api.contract.StudentService;
 import com.lifu.wsms.reload.api.SuccessCode;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
@@ -15,14 +16,11 @@ import com.lifu.wsms.reload.dto.response.student.StudentResponse;
 import com.lifu.wsms.reload.dto.response.student.StudentResponses;
 import com.lifu.wsms.reload.entity.finance.StudentAccount;
 import com.lifu.wsms.reload.entity.student.Student;
-import com.lifu.wsms.reload.entity.student.StudentNumber;
 import com.lifu.wsms.reload.enums.StudentStatus;
-import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
-import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
+import com.lifu.wsms.reload.mapper.student.CreateStudentRequestToStudentMapper;
+import com.lifu.wsms.reload.mapper.student.StudentToStudentResponseMapper;
 import com.lifu.wsms.reload.repository.AccountRepository;
-import com.lifu.wsms.reload.repository.StudentNumberRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
-import com.lifu.wsms.reload.service.ApiService;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +37,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
-import java.util.Optional;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
-import static com.lifu.wsms.reload.service.ApiService.*;
+import static com.lifu.wsms.reload.service.student.StudentApiService.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -55,7 +52,7 @@ public class StudentRecord implements StudentService {
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
-        return ApiService.validateCreateStudent(createStudentRequest)
+        return StudentApiService.validateCreateStudent(createStudentRequest)
                 .fold(Either::left, validatedRequest -> createStudentAndAccount(createStudentRequest));
     }
 
@@ -92,10 +89,10 @@ public class StudentRecord implements StudentService {
             if (updateStudentRequest.getStudentId() != null) {
                 updateStudentRequest.setStudentId(updateStudentRequest.getStudentId().strip().toUpperCase());
             }
-            return ApiService.validateUpdateStudent(updateStudentRequest)
+            return StudentApiService.validateUpdateStudent(updateStudentRequest)
                     .map(result -> {
                         return studentRepository.findByStudentId(updateStudentRequest.getStudentId())
-                                .map(student -> studentRepository.save(ApiService.populateStudentForUpdate(student, updateStudentRequest)))
+                                .map(student -> studentRepository.save(StudentApiService.populateStudentForUpdate(student, updateStudentRequest)))
                                 .orElseThrow(() -> new RuntimeException("Student record update failed"));
                     })
                     .map(student -> buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
@@ -185,7 +182,7 @@ public class StudentRecord implements StudentService {
                             .stream()
                             .map(objects -> {
                                 StudentAccountBalanceResponse studentAccountBalanceResponse =
-                                        ApiService.getStudentAccountBalanceResponseFromObjects(objects);
+                                        StudentApiService.getStudentAccountBalanceResponseFromObjects(objects);
                                 return buildSuccessResponse(objectMapper.valueToTree(studentAccountBalanceResponse),
                                         HttpStatus.OK, TRANSACTION_SUCCESS_CODE).get();
                             })
@@ -203,7 +200,7 @@ public class StudentRecord implements StudentService {
         try {
             Page<Object[]> pagedResults = studentRepository.findAllStudentsAndAccountBalances(PageRequest.of(pageNumber, pageSize));
             List<StudentAccountBalanceResponse> studentAccountBalanceResponseList =
-                    ApiService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
+                    StudentApiService.getStudentAccountBalanceResponseFromObjectList(pagedResults);
             var studentAccountBalanceResponses = StudentAccountBalanceResponses.builder()
                     .studentAccounts(studentAccountBalanceResponseList)
                     .totalCount(studentRepository.count())

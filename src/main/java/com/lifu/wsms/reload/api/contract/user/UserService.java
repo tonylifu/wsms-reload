@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.api;
+package com.lifu.wsms.reload.api.contract.user;
 
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;

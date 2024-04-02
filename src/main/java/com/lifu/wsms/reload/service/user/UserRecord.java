@@ -1,9 +1,7 @@
 package com.lifu.wsms.reload.service.user;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.UserService;
+import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
@@ -21,7 +19,7 @@ import java.time.LocalDate;
 import java.util.Set;
 import static com.lifu.wsms.reload.api.AppUtil.*;
 import static com.lifu.wsms.reload.api.AppUtil.convertLocalDateToLong;
-import static com.lifu.wsms.reload.service.ApiService.buildSuccessResponse;
+import static com.lifu.wsms.reload.service.student.StudentApiService.buildSuccessResponse;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -36,7 +34,7 @@ public class UserRecord implements UserService {
                         .actionBy(getUserFromSecurityContext())
                         .createdAt(convertLocalDateToLong(date))
                         .designation(createUserRequest.getDesignation())
-                        .roles(createUserRequest.getRoles())
+                        .userGroup(createUserRequest.getUserGroup())
                         .lastActionBy(getUserFromSecurityContext())
                         .email(createUserRequest.getEmail())
                         .lastModifiedAt(convertLocalDateToLong(date))

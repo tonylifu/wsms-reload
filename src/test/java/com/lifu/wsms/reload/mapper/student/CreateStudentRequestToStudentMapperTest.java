@@ -1,6 +1,6 @@
-package com.lifu.wsms.reload.mapper;
+package com.lifu.wsms.reload.mapper.student;
 
-import com.lifu.wsms.reload.util.TestUtil;
+import com.lifu.wsms.reload.util.SudentTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -11,7 +11,7 @@ class CreateStudentRequestToStudentMapperTest {
 
     @Test
     void toStudent() {
-        var createStudent = TestUtil.getCreateStudentRequest();
+        var createStudent = SudentTestUtil.getCreateStudentRequest();
         var student = CreateStudentRequestToStudentMapper.INSTANCE.toStudent(createStudent);
         System.out.println(student);
         assertEquals(createStudent.getFirstName(), student.getFirstName());

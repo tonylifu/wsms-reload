@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.mapper;
+package com.lifu.wsms.reload.mapper.student;
 
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;

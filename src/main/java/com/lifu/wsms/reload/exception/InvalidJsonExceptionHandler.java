@@ -7,7 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import static com.lifu.wsms.reload.api.AppUtil.INVALID_JSON_REQUEST_CODE;
-import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
+import static com.lifu.wsms.reload.service.student.StudentApiService.buildErrorResponse;
 
 
 @Slf4j

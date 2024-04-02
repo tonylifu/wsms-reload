@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.enums.Gender;
-import com.lifu.wsms.reload.util.TestUtil;
+import com.lifu.wsms.reload.util.SudentTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +41,7 @@ class StudentControllerTest {
     @DirtiesContext
     void createAndReadAndUpdateAndDeleteStudent() throws Exception {
         //Given => createstudentRequest object
-        CreateStudentRequest createStudentRequest = TestUtil.getCreateStudentRequest();
+        CreateStudentRequest createStudentRequest = SudentTestUtil.getCreateStudentRequest();
 
         //When => create student and return location in the header
         String location = mockMvc.perform(

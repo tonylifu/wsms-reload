@@ -1,6 +1,6 @@
 package com.lifu.wsms.reload.service.user;
 
-import com.lifu.wsms.reload.api.UserService;
+import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
@@ -8,7 +8,7 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
-import com.lifu.wsms.reload.util.TestUtil;
+import com.lifu.wsms.reload.util.SudentTestUtil;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ class UserRecordTest {
     @Transactional
     public void createUserFindUpdateSetPasswordChangePasswordAddRemoveRoleAndDelete() {
         //Given
-        var createUserRequest = TestUtil.getCreateUserDTO();
+        var createUserRequest = SudentTestUtil.getCreateUserDTO();
 
         //When - a user is created
         Either<FailureResponse, SuccessResponse> createUserResponse = createUser(createUserRequest);
@@ -63,7 +63,7 @@ class UserRecordTest {
                 findUserResponse.get().getBody().get("roles").size());
 
         //Given
-        var updateUserRequest = TestUtil.getUpdateUserDTO();
+        var updateUserRequest = SudentTestUtil.getUpdateUserDTO();
         updateUserRequest.setUsername(username);
         assertEquals(createUserRequest.getUsername(), updateUserRequest.getUsername());
         assertNotEquals(createUserRequest.getMobile(), updateUserRequest.getMobile());
