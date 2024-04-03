@@ -34,7 +34,6 @@ public class UserRecord implements UserService {
                         .actionBy(getUserFromSecurityContext())
                         .createdAt(convertLocalDateToLong(date))
                         .designation(createUserRequest.getDesignation())
-                        .userGroup(createUserRequest.getUserGroup())
                         .lastActionBy(getUserFromSecurityContext())
                         .email(createUserRequest.getEmail())
                         .lastModifiedAt(convertLocalDateToLong(date))

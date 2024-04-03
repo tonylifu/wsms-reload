@@ -182,25 +182,4 @@ public class SudentTestUtil {
                 "}";
         return request;
     }
-
-    public static CreateUserRequest getCreateUserDTO() {
-        return CreateUserRequest.builder()
-                .username("user1")
-                .mobile("077664333489")
-                .email("test1@test.com")
-                .designation("Administrator")
-                .status(UserStatus.CREATED)
-                .roles(Set.of(UserRole.ADMIN, UserRole.BURSAR))
-                .build();
-    }
-
-    public static UpdateUserRequest getUpdateUserDTO() {
-        return UpdateUserRequest.builder()
-                .username("user2")
-                .mobile("01234456677")
-                .email("test2@test.com")
-                .designation("Bursar")
-                .roles(Set.of(UserRole.BURSAR))
-                .build();
-    }
 }

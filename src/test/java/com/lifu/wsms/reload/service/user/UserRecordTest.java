@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+import static com.lifu.wsms.reload.util.UserTestUtil.getCreateUserDTO;
+import static com.lifu.wsms.reload.util.UserTestUtil.getUpdateUserDTO;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -36,7 +38,7 @@ class UserRecordTest {
     @Transactional
     public void createUserFindUpdateSetPasswordChangePasswordAddRemoveRoleAndDelete() {
         //Given
-        var createUserRequest = SudentTestUtil.getCreateUserDTO();
+        var createUserRequest = getCreateUserDTO();
 
         //When - a user is created
         Either<FailureResponse, SuccessResponse> createUserResponse = createUser(createUserRequest);
@@ -61,7 +63,7 @@ class UserRecordTest {
                 findUserResponse.get().getBody().get("email").asText());
 
         //Given
-        var updateUserRequest = SudentTestUtil.getUpdateUserDTO();
+        var updateUserRequest = getUpdateUserDTO();
         updateUserRequest.setUsername(username);
         assertEquals(createUserRequest.getUsername(), updateUserRequest.getUsername());
         assertNotEquals(createUserRequest.getMobile(), updateUserRequest.getMobile());

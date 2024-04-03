@@ -9,16 +9,20 @@ import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Table(name = "users")
 @Data
-public class User {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_sequence")
     @SequenceGenerator(name = "users_sequence", sequenceName = "users_id_sequence",
             allocationSize = 1)
-    @Column(name = "user_id")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -51,9 +55,14 @@ public class User {
     @JdbcTypeCode(SqlTypes.JSON)
     private Contact contact;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_group_id")
-    private UserGroup userGroup;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OAuthToken> refreshTokens;
 
     private String designation;
 
@@ -75,5 +84,5 @@ public class User {
     private boolean isPasswordSet;
 
     @Column(nullable = false)
-    private long lastPasswordChangeAt;
+    private long lastPasswordChangedAt;
 }

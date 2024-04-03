@@ -26,10 +26,8 @@ public class CreateUserRequest {
     private String email;
     private String mobile;
     private UserStatus status;
-    private String fullName;
     private String dob;
     private Gender gender;
     private Address address;
     private Contact contact;
-    private UserRolesGroup userGroup;
 }

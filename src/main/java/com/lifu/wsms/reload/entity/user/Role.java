@@ -2,28 +2,30 @@ package com.lifu.wsms.reload.entity.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "user_group_roles")
+@Table(name = "roles")
 @Data
-public class Role {
+public class Role implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_group_roles_sequence")
-    @SequenceGenerator(name = "user_group_roles_sequence", sequenceName = "user_group_roles_id_sequence",
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_sequence")
+    @SequenceGenerator(name = "roles_sequence", sequenceName = "roles_id_sequence",
             allocationSize = 1)
-    @Column(name = "role_id")
     private Long id;
 
-    @Column(name = "role_name", unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "role_permissions",
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<Permission> permissions = new HashSet<>();
 }
