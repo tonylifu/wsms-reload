@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.api.contract;
+package com.lifu.wsms.reload.api.contract.student;
 
 import org.springframework.dao.DataAccessException;
 

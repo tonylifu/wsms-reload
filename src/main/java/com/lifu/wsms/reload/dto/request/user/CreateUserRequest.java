@@ -14,9 +14,10 @@ import lombok.*;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateUserRequest {
-    private String firstName;
-    private String lastName;
     private String username;
+    private String firstName;
+    private String middleName;
+    private String lastName;
     private String designation;
     private String email;
     private String mobile;
@@ -25,4 +26,5 @@ public class CreateUserRequest {
     private Gender gender;
     private Address address;
     private Contact contact;
+    private boolean passwordSet;
 }

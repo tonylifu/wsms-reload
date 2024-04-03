@@ -2,7 +2,7 @@ package com.lifu.wsms.reload.service.student;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.contract.StudentService;
+import com.lifu.wsms.reload.api.contract.student.StudentService;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;

@@ -1,6 +1,6 @@
-package com.lifu.wsms.reload.api.contract;
+package com.lifu.wsms.reload.api.contract.student;
 
-import com.lifu.wsms.reload.api.contract.AccountService;
+import com.lifu.wsms.reload.api.contract.account.AccountService;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;

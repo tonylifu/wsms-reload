@@ -2,6 +2,7 @@ package com.lifu.wsms.reload.util;
 
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
+import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
 
@@ -16,6 +17,11 @@ public class UserTestUtil {
                 .mobile("077664333489")
                 .email("test1@test.com")
                 .designation("Administrator")
+                .firstName("David")
+                .middleName("Owogoga")
+                .lastName("Lifu")
+                .dob("2010-01-01")
+                .gender(Gender.MALE)
                 .status(UserStatus.CREATED)
                 .build();
     }

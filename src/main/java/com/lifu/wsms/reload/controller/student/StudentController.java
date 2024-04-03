@@ -1,6 +1,6 @@
 package com.lifu.wsms.reload.controller.student;
 
-import com.lifu.wsms.reload.api.contract.StudentService;
+import com.lifu.wsms.reload.api.contract.student.StudentService;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import lombok.RequiredArgsConstructor;
