@@ -52,7 +52,7 @@ public class StudentRecord implements StudentService {
     @Transactional
     @Override
     public Either<FailureResponse, SuccessResponse> createStudent(CreateStudentRequest createStudentRequest) {
-        return StudentApiService.validateCreateStudent(createStudentRequest)
+        return validateCreateStudent(createStudentRequest)
                 .fold(Either::left, validatedRequest -> createStudentAndAccount(createStudentRequest));
     }
 

@@ -71,17 +71,17 @@ public class UserRecord implements UserService {
     }
 
     @Override
+    public ApiResponse updateStatus(String username, UserStatus status) {
+        return null;
+    }
+
+    @Override
     public ApiResponse addRoles(String username, Set<UserRole> roles) {
         return null;
     }
 
     @Override
     public ApiResponse removeAllRoles(String username) {
-        return null;
-    }
-
-    @Override
-    public ApiResponse updateStatus(String username, UserStatus status) {
         return null;
     }
 }

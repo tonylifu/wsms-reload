@@ -68,6 +68,15 @@ public interface UserService {
     ApiResponse changePassword(String username, char[] currentPassword, char[] newPassword);
 
     /**
+     * Updates the status of a user.
+     *
+     * @param username The username of the user whose status will be updated.
+     * @param status   The new status to set.
+     * @return An {@link ApiResponse} indicating the result of the operation.
+     */
+    ApiResponse updateStatus(String username, UserStatus status);
+
+    /**
      * Adds roles to a user.
      *
      * @param username The username of the user to add roles to.
@@ -83,14 +92,5 @@ public interface UserService {
      * @return An {@link ApiResponse} indicating the result of the operation.
      */
     ApiResponse removeAllRoles(String username);
-
-    /**
-     * Updates the status of a user.
-     *
-     * @param username The username of the user whose status will be updated.
-     * @param status   The new status to set.
-     * @return An {@link ApiResponse} indicating the result of the operation.
-     */
-    ApiResponse updateStatus(String username, UserStatus status);
 }
 
