@@ -1,9 +1,7 @@
 package com.lifu.wsms.reload.mapper.user;
 
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
-import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.entity.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
