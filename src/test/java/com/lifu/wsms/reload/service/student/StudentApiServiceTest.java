@@ -1,7 +1,7 @@
-package com.lifu.wsms.reload.service;
+package com.lifu.wsms.reload.service.student;
 
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
-import com.lifu.wsms.reload.util.TestUtil;
+import com.lifu.wsms.reload.util.SudentTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class ApiServiceTest {
+class StudentApiServiceTest {
     @Test
     void validateCreateStudent_happy() {
-        var createStudent = TestUtil.getCreateStudentRequest();
-        var result = ApiService.validateCreateStudent(createStudent);
+        var createStudent = SudentTestUtil.getCreateStudentRequest();
+        var result = StudentApiService.validateCreateStudent(createStudent);
         System.out.println(result);
         assertTrue(result.isRight());
         assertTrue(result.get());
@@ -28,9 +28,9 @@ class ApiServiceTest {
 
     @Test
     void validateCreateStudent_sad() {
-        var createStudent = TestUtil.getCreateStudentRequest();
+        var createStudent = SudentTestUtil.getCreateStudentRequest();
         createStudent.setLastName(null);
-        var result = ApiService.validateCreateStudent(createStudent);
+        var result = StudentApiService.validateCreateStudent(createStudent);
         assertTrue(result.isLeft());
         var failureResponse = result.getLeft();
         assertEquals(HttpStatus.BAD_REQUEST, failureResponse.getApiResponse().getHttpStatusCode());
@@ -38,17 +38,17 @@ class ApiServiceTest {
 
     @Test
     void validateUpdateStudent_happy() {
-        var updateStudent = TestUtil.getUpdateStudentRequest();
-        var result = ApiService.validateUpdateStudent(updateStudent);
+        var updateStudent = SudentTestUtil.getUpdateStudentRequest();
+        var result = StudentApiService.validateUpdateStudent(updateStudent);
         assertTrue(result.isRight());
         assertTrue(result.get());
     }
 
     @Test
     void validateUpdateStudent_sad() {
-        var updateStudent = TestUtil.getUpdateStudentRequest();
+        var updateStudent = SudentTestUtil.getUpdateStudentRequest();
         updateStudent.setStudentId(null);
-        var result = ApiService.validateUpdateStudent(updateStudent);
+        var result = StudentApiService.validateUpdateStudent(updateStudent);
         assertTrue(result.isLeft());
         var failureResponse = result.getLeft();
         assertEquals(HttpStatus.BAD_REQUEST, failureResponse.getApiResponse().getHttpStatusCode());
@@ -56,22 +56,22 @@ class ApiServiceTest {
 
     @Test
     void populateStudentForUpdate() {
-        var updateStudent = TestUtil.getUpdateStudentRequest();
-        var student = TestUtil.getStudent();
+        var updateStudent = SudentTestUtil.getUpdateStudentRequest();
+        var student = SudentTestUtil.getStudent();
         student.setFirstName(null);
         assertNull(student.getFirstName());
         assertNotNull(updateStudent.getFirstName());
-        var result = ApiService.populateStudentForUpdate(student, updateStudent);
+        var result = StudentApiService.populateStudentForUpdate(student, updateStudent);
         assertNotNull(result.getFirstName());
         assertEquals(updateStudent.getFirstName(), result.getFirstName());
     }
 
     @Test
     void getStudentAccountBalanceResponseFromObjects() {
-        var student = TestUtil.getStudent();
+        var student = SudentTestUtil.getStudent();
         BigDecimal balance = BigDecimal.valueOf(4.55);
         Object[] objects = {student, balance};
-        StudentAccountBalanceResponse studentAccountObject = ApiService.getStudentAccountBalanceResponseFromObjects(objects);
+        StudentAccountBalanceResponse studentAccountObject = StudentApiService.getStudentAccountBalanceResponseFromObjects(objects);
         String returnedStudentId = studentAccountObject.getStudentResponse().getStudentId();
         BigDecimal returnedBalance = studentAccountObject.getAccountBalance();
         assertEquals(student.getStudentId(), returnedStudentId);
@@ -80,8 +80,8 @@ class ApiServiceTest {
 
     @Test
     void getStudentAccountBalanceResponseFromObjectList() {
-        var student1 = TestUtil.getStudent();
-        var student2 = TestUtil.getStudent();
+        var student1 = SudentTestUtil.getStudent();
+        var student2 = SudentTestUtil.getStudent();
         BigDecimal balance1 = BigDecimal.valueOf(4.55);
         BigDecimal balance2 = BigDecimal.valueOf(9.99);
 
@@ -92,7 +92,7 @@ class ApiServiceTest {
         PageRequest pageRequest = PageRequest.of(0, objectList.size());
         PageImpl<Object[]> objects = new PageImpl<>(objectList, pageRequest, objectList.size());
 
-        List<StudentAccountBalanceResponse> studentAccountObjects = ApiService.getStudentAccountBalanceResponseFromObjectList(objects);
+        List<StudentAccountBalanceResponse> studentAccountObjects = StudentApiService.getStudentAccountBalanceResponseFromObjectList(objects);
 
         var firstStudentResponse = studentAccountObjects.getFirst();
         var lastStudentResponse = studentAccountObjects.getLast();

@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.api;
+package com.lifu.wsms.reload.api.contract;
 
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;

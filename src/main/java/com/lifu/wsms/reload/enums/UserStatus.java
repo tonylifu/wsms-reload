@@ -1,18 +1,15 @@
 package com.lifu.wsms.reload.enums;
 
-public enum StudentStatus {
+public enum UserStatus {
     CREATED("Created"),
     ACTIVE("Active"),
-    SUSPENDED("Suspended"),
-    RUSTICATED("Rusticated"),
-    TRANSFERRED("Transferred"),
-    WITHDRAWN("Withdrawn"),
-    GRADUATED("Graduated"),
+    DEACTIVATED("Deactivated"),
+    RESTRICTED("Restricted"),
     OTHER("Other");
 
     private final String displayName;
 
-    StudentStatus(String displayName) {
+    UserStatus(String displayName) {
         this.displayName = displayName;
     }
 
@@ -25,8 +22,8 @@ public enum StudentStatus {
         return displayName;
     }
 
-    public static StudentStatus fromString(String value) {
-        for (StudentStatus studentStatus : StudentStatus.values()) {
+    public static UserStatus fromString(String value) {
+        for (UserStatus studentStatus : UserStatus.values()) {
             if (studentStatus.displayName.equalsIgnoreCase(value)) {
                 return studentStatus;
             }

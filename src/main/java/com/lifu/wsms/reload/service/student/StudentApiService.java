@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.service;
+package com.lifu.wsms.reload.service.student;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,7 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.entity.student.Student;
-import com.lifu.wsms.reload.mapper.StudentToStudentResponseMapper;
+import com.lifu.wsms.reload.mapper.student.StudentToStudentResponseMapper;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,9 +27,9 @@ import java.util.List;
 import static com.lifu.wsms.reload.api.AppUtil.*;
 
 @Slf4j
-public class ApiService {
+public class StudentApiService {
     private final static ObjectMapper objectMapper = new ObjectMapper();
-    private ApiService(){}
+    private StudentApiService(){}
 
     /**
      * Validates the fields of a {@link CreateStudentRequest} object and returns an {@link Either} indicating success or failure.

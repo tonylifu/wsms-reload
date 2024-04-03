@@ -1,22 +1,24 @@
 package com.lifu.wsms.reload.util;
 
-import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.dto.LegalGuardian;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
+import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
+import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.entity.student.Student;
 import com.lifu.wsms.reload.enums.Gender;
-import com.lifu.wsms.reload.mapper.CreateStudentRequestToStudentMapper;
-import org.jetbrains.annotations.NotNull;
+import com.lifu.wsms.reload.enums.UserRole;
+import com.lifu.wsms.reload.enums.UserStatus;
+import com.lifu.wsms.reload.mapper.student.CreateStudentRequestToStudentMapper;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public class TestUtil {
-    private TestUtil() {}
+public class SudentTestUtil {
+    private SudentTestUtil() {}
 
     /**
      * Generates a {@link CreateStudentRequest} object with predefined values.

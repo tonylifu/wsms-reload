@@ -2,7 +2,7 @@ package com.lifu.wsms.reload.service.student;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.StudentService;
+import com.lifu.wsms.reload.api.contract.StudentService;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
@@ -10,10 +10,8 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.dto.response.finance.StudentAccountBalanceResponse;
 import com.lifu.wsms.reload.dto.response.student.StudentResponse;
-import com.lifu.wsms.reload.repository.AccountRepository;
-import com.lifu.wsms.reload.repository.StudentNumberRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
-import com.lifu.wsms.reload.util.TestUtil;
+import com.lifu.wsms.reload.util.SudentTestUtil;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +100,7 @@ class StudentRecordTest {
         int pageNumber = 1; //pageNumber is 0 index based
         int pageSize = 5;
         List<String> studentIds = new ArrayList<>();
-        List<CreateStudentRequest> twentyCreateStudentRequests = TestUtil.getTwentyCreateStudentsRequests();
+        List<CreateStudentRequest> twentyCreateStudentRequests = SudentTestUtil.getTwentyCreateStudentsRequests();
 
         twentyCreateStudentRequests.forEach(createStudentRequest -> {
             Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
@@ -177,7 +174,7 @@ class StudentRecordTest {
         int pageNumber = 1; //pageNumber is 0 index based
         int pageSize = 5;
         List<String> studentIds = new ArrayList<>();
-        List<CreateStudentRequest> twentyCreateStudentRequests = TestUtil.getTwentyCreateStudentsRequests();
+        List<CreateStudentRequest> twentyCreateStudentRequests = SudentTestUtil.getTwentyCreateStudentsRequests();
 
         twentyCreateStudentRequests.forEach(createStudentRequest -> {
             Either<FailureResponse, SuccessResponse> createResponse = studentService.createStudent(createStudentRequest);
@@ -222,10 +219,10 @@ class StudentRecordTest {
     }
 
     private UpdateStudentRequest getUpdateStudentRequest() {
-        return TestUtil.getUpdateStudentRequest();
+        return SudentTestUtil.getUpdateStudentRequest();
     }
 
     private CreateStudentRequest getCreateStudentRequest() {
-        return TestUtil.getCreateStudentRequest();
+        return SudentTestUtil.getCreateStudentRequest();
     }
 }

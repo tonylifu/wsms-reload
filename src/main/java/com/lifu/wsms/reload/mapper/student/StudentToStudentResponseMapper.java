@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.mapper;
+package com.lifu.wsms.reload.mapper.student;
 
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.dto.response.student.StudentResponse;
@@ -7,8 +7,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
-
-import java.time.LocalDate;
 
 @Mapper
 public interface StudentToStudentResponseMapper {
