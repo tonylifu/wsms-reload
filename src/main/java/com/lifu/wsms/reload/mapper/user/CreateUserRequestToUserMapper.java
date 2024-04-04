@@ -13,11 +13,12 @@ public interface CreateUserRequestToUserMapper {
     CreateUserRequestToUserMapper INSTANCE = Mappers.getMapper(CreateUserRequestToUserMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "refreshTokens", ignore = true)
     @Mapping(target = "lastPasswordChangedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "lastUpdateAt", ignore = true)
+    @Mapping(target = "lastUpdatedAt", ignore = true)
     @Mapping(target = "dob", source = "dob", dateFormat = "yyyy-MM-dd", qualifiedByName = "localDateStringToLong")
     @Mapping(target = "actionBy", expression = "java(mapUserFromSecurityContext())")
     @Mapping(target = "lastActionBy", expression = "java(mapUserFromSecurityContext())")

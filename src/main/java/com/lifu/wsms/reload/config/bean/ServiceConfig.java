@@ -7,6 +7,7 @@ import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.repository.AccountRepository;
 import com.lifu.wsms.reload.repository.StudentNumberRepository;
 import com.lifu.wsms.reload.repository.StudentRepository;
+import com.lifu.wsms.reload.repository.UserRepository;
 import com.lifu.wsms.reload.service.student.StudentNumberGenerator;
 import com.lifu.wsms.reload.api.contract.student.StudentNumberService;
 import com.lifu.wsms.reload.service.student.StudentRecord;
@@ -44,8 +45,9 @@ public class ServiceConfig {
 
     @Bean
     public UserService userService(final ObjectMapper objectMapper,
-                                   final PasswordEncoder passwordEncoder) {
-        return new UserRecord(objectMapper, passwordEncoder);
+                                   final PasswordEncoder passwordEncoder,
+                                   final UserRepository userRepository) {
+        return new UserRecord(objectMapper, passwordEncoder, userRepository);
     }
 
     @Bean

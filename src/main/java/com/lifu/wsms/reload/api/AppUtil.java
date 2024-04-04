@@ -226,4 +226,15 @@ public class AppUtil implements ApplicationContextAware {
         }
         return extractedQuotes;
     }
+
+    public static String getFullName(String firstName, String middleName, String lastName) {
+        StringBuilder fullName = new StringBuilder(firstName);
+        if (middleName != null && !middleName.isEmpty()) {
+            fullName.append(" ").append(middleName);
+        }
+        if (lastName != null && !lastName.isEmpty()) {
+            fullName.append(" ").append(lastName);
+        }
+        return fullName.toString();
+    }
 }

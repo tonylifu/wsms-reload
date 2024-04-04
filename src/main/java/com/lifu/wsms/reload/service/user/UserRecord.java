@@ -7,40 +7,38 @@ import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
-import com.lifu.wsms.reload.dto.response.user.UserResponse;
+import com.lifu.wsms.reload.entity.user.User;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
+import com.lifu.wsms.reload.mapper.user.CreateUserRequestToUserMapper;
+import com.lifu.wsms.reload.mapper.user.UserToUserResponseMapper;
+import com.lifu.wsms.reload.repository.UserRepository;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.time.LocalDate;
+
 import java.util.Set;
 import static com.lifu.wsms.reload.api.AppUtil.*;
-import static com.lifu.wsms.reload.api.AppUtil.convertLocalDateToLong;
+import static com.lifu.wsms.reload.service.student.StudentApiService.buildErrorResponse;
 import static com.lifu.wsms.reload.service.student.StudentApiService.buildSuccessResponse;
+import static com.lifu.wsms.reload.service.user.UserApiService.validateCreateUser;
 
 @RequiredArgsConstructor
 @Slf4j
 public class UserRecord implements UserService {
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     @Override
     public Either<FailureResponse, SuccessResponse> createUser(CreateUserRequest createUserRequest) {
-        LocalDate date = LocalDate.now();
-        return buildSuccessResponse(objectMapper.valueToTree(UserResponse.builder()
-                        .actionBy(getUserFromSecurityContext())
-                        .createdAt(convertLocalDateToLong(date))
-                        .designation(createUserRequest.getDesignation())
-                        .lastActionBy(getUserFromSecurityContext())
-                        .email(createUserRequest.getEmail())
-                        .lastModifiedAt(convertLocalDateToLong(date))
-                        .mobile(createUserRequest.getMobile())
-                        .username(createUserRequest.getUsername())
-                        .password(passwordEncoder.encode("password"))
-                .build()), HttpStatus.CREATED, TRANSACTION_CREATED_CODE);
+        return validateCreateUser(createUserRequest)
+                .fold(Either::left, validatedRequest -> createUserEntity(createUserRequest));
     }
 
     @Override
@@ -83,5 +81,38 @@ public class UserRecord implements UserService {
     @Override
     public ApiResponse removeAllRoles(String username) {
         return null;
+    }
+
+    private Either<FailureResponse, SuccessResponse> createUserEntity(CreateUserRequest createUserRequest) {
+
+        try {
+            User user = getUserEntity(createUserRequest);
+
+            if (userRepository.existsByUsername(user.getUsername())) {
+                log.error("Data integrity violation error, username: {} already exist", user.getUsername());
+                return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
+            }
+            user = userRepository.save(user);
+
+            return buildSuccessResponse(objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)),
+                    HttpStatus.CREATED, TRANSACTION_CREATED_CODE);
+
+        } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
+        } catch (DataAccessResourceFailureException e) {
+            log.error("Database connection error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DATA_PERSISTENCE_ERROR_CODE);
+        } catch (DataAccessException e) {
+            log.error("Persistence error: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, DATA_PERSISTENCE_ERROR_CODE);
+        } catch (Exception e) {
+            log.error("An unexpected error occurred: {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE);
+        }
+    }
+
+    private User getUserEntity(CreateUserRequest createUserRequest) {
+        return CreateUserRequestToUserMapper.INSTANCE.toUser(createUserRequest);
     }
 }
