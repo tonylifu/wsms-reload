@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -140,6 +141,11 @@ public class UserRecord implements UserService {
             return userRepository.findByUsername(username)
                     .map(user -> {
                         user.setPassword(passwordEncoder.encode(new String(password)).toCharArray());
+                        user.setPasswordSet(true);
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        user.setLastPasswordChangedAt(timeStamp);
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
                         userRepository.save(user);
                         HttpStatus httpStatus = HttpStatus.NO_CONTENT;
                         HttpHeaders headers = new HttpHeaders();
@@ -241,11 +247,11 @@ public class UserRecord implements UserService {
      * @see CreateUserRequest
      * @see CreateUserRequestToUserMapper
      * @see UserStatus
-     * @see AppUtil#convertLocalDateToLong(LocalDate)
+     * @see AppUtil#convertLocalDateTimeToLong(LocalDateTime)
      */
     private User getUserEntity(CreateUserRequest createUserRequest) {
         User user = CreateUserRequestToUserMapper.INSTANCE.toUser(createUserRequest);
-        long now = convertLocalDateToLong(LocalDate.now());
+        long now = convertLocalDateTimeToLong(LocalDateTime.now());
         user.setStatus(UserStatus.CREATED);
         user.setCreatedAt(now);
         user.setLastUpdatedAt(now);
