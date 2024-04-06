@@ -21,6 +21,7 @@ public enum ErrorCode {
     INVALID_STUDENT_NAME(MISSING_NAMES_CODE, "Invalid student name"),
     INVALID_DOB(INVALID_DOB_CODE, "Invalid date of birth"),
     MISSING_USER_NAME(MISSING_USER_NAME_CODE, "Missing username"),
+    WEAK_PASSWORD(WEAK_PASSWORD_CODE, "password does not meet minimum requirements"),
     // Add more error codes and messages as needed
     DATA_PERSISTENCE_ERROR(DATA_PERSISTENCE_ERROR_CODE, "Failed data persistence"),
     DUPLICATE_PERSISTENCE_ERROR(DUPLICATE_PERSISTENCE_ERROR_CODE, "Duplicate request, entity already exist"),

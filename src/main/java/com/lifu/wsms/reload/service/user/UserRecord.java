@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
@@ -128,8 +129,33 @@ public class UserRecord implements UserService {
 
     @Override
     public ApiResponse setPassword(String username, char[] password) {
-        //TODO the entity User to have isPasswordSet field
-        return null;
+        if (!PasswordValidator.isPasswordStrong(password)) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, WEAK_PASSWORD_CODE).getLeft().getApiResponse();
+        }
+        if (username == null || username.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, MISSING_USER_NAME_CODE).getLeft().getApiResponse();
+        }
+        username = username.strip().toUpperCase();
+        try {
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+                        user.setPassword(passwordEncoder.encode(new String(password)).toCharArray());
+                        userRepository.save(user);
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
 
     @Override

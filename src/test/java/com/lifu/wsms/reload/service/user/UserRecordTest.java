@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled
+//@Disabled
 class UserRecordTest {
     @Autowired
     private UserService userService;
@@ -76,15 +76,15 @@ class UserRecordTest {
         assertTrue(updateUserResponse.isRight());
         assertEquals(createUserRequest.getUsername().toLowerCase(),
                 updateUserResponse.get().getBody().get("username").asText().toLowerCase());
-        assertEquals(createUserRequest.getEmail(),
+        assertEquals(updateUserRequest.getEmail(),
                 updateUserResponse.get().getBody().get("email").asText());
 
         //Given - a password set or password change
-        ApiResponse setPasswordResponse = setPassword(username, "password".toCharArray());
-        assertEquals(HttpStatus.OK, setPasswordResponse.getHttpStatusCode());
+        ApiResponse setPasswordResponse = setPassword(username, "Password@123".toCharArray());
+        assertEquals(HttpStatus.NO_CONTENT, setPasswordResponse.getHttpStatusCode());
         ApiResponse passwordChangeResponse = changePassword(username, "password".toCharArray(),
-                "password@123".toCharArray());
-        assertEquals(HttpStatus.OK, passwordChangeResponse.getHttpStatusCode());
+                "Test@123".toCharArray());
+        assertEquals(HttpStatus.NO_CONTENT, passwordChangeResponse.getHttpStatusCode());
 
         //When - you query the user details, chnages should be reflected
         Either<FailureResponse, SuccessResponse> findUserResponseAfterPasswordUpate = findUser(username);
@@ -154,7 +154,7 @@ class UserRecordTest {
     }
 
     private ApiResponse setPassword(String username, char[] password) {
-        return userService.setPassword(username, passwordEncoder.encode(new String(password)).toCharArray());
+        return userService.setPassword(username, password);
     }
 
     private ApiResponse changePassword(String username, char[] currentPassword, char[] newPassword) {
