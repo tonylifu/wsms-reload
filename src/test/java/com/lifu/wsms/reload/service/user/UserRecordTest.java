@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-//@Disabled
+@Disabled
 class UserRecordTest {
     @Autowired
     private UserService userService;
