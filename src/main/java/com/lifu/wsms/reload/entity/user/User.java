@@ -70,10 +70,8 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @Column(nullable = false)
     private long createdAt;
 
-    @Column(nullable = false)
     private long lastUpdatedAt;
 
     @Column(nullable = false)
@@ -84,6 +82,5 @@ public class User implements Serializable {
 
     private boolean isPasswordSet;
 
-    @Column(nullable = false)
     private long lastPasswordChangedAt;
 }

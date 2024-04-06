@@ -38,6 +38,7 @@ public class UserTestUtil {
                 .mobile("01234456677")
                 .email("test2@test.com")
                 .designation("Bursar")
+                .gender(Gender.MALE)
                 .build();
     }
 

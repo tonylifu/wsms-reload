@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import static com.lifu.wsms.reload.api.AppUtil.BAD_REQUEST_INVALID_PARAMS_CODE;
-import static com.lifu.wsms.reload.service.student.StudentApiService.buildErrorResponse;
+import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
 
 @RestControllerAdvice
 @Slf4j

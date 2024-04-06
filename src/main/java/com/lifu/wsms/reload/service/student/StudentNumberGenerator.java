@@ -32,7 +32,7 @@ public class StudentNumberGenerator implements StudentNumberService {
         int nextStudentNumber = studentNumberResult.map(studentNumber -> studentNumber.getStudentNumber() + 1).orElse(1);
         String formattedStudentNumber = String.format("%04d", nextStudentNumber);
         persistStudentNumber(currentYear, formattedStudentNumber);
-        return formattedStudentNumber;
+        return formattedStudentNumber.toUpperCase();
     }
 
     @Override

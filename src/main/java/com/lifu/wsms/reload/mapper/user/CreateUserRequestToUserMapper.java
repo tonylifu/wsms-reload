@@ -25,8 +25,8 @@ public interface CreateUserRequestToUserMapper {
     User toUser(CreateUserRequest createUserRequest);
 
     @Named("localDateStringToLong")
-    default long mapLocalDateStringToLong(String dob) {
-        return AppUtil.convertLocalDateToLong(AppUtil.parseToLocalDate(dob));
+    default long mapLocalDateStringToLong(String date) {
+        return AppUtil.convertLocalDateToLong(AppUtil.parseToLocalDate(date));
     }
 
     default String mapUserFromSecurityContext() {

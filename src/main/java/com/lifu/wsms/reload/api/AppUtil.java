@@ -58,6 +58,7 @@ public class AppUtil implements ApplicationContextAware {
     public static final String INVALID_STUDENT_ID_CODE = "900";
     public static final String MISSING_NAMES_CODE = "901";
     public static final String INVALID_DOB_CODE = "902";
+    public static final String MISSING_USER_NAME_CODE = "903";
     //Data Persistence
     public static final String DATA_PERSISTENCE_ERROR_CODE = "950";
     public static final String DUPLICATE_PERSISTENCE_ERROR_CODE = "951";

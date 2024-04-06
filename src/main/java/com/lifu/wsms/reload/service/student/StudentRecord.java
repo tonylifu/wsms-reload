@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.contract.student.StudentNumberService;
 import com.lifu.wsms.reload.api.contract.student.StudentService;
-import com.lifu.wsms.reload.api.SuccessCode;
 import com.lifu.wsms.reload.dto.request.student.CreateStudentRequest;
 import com.lifu.wsms.reload.dto.request.student.UpdateStudentRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
@@ -39,7 +38,9 @@ import java.time.Year;
 import java.util.List;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
-import static com.lifu.wsms.reload.service.student.StudentApiService.*;
+import static com.lifu.wsms.reload.service.ApiService.*;
+import static com.lifu.wsms.reload.service.student.StudentApiService.validateCreateStudent;
+import static com.lifu.wsms.reload.service.student.StudentApiService.validateStudentId;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -58,6 +59,10 @@ public class StudentRecord implements StudentService {
 
     @Override
     public Either<FailureResponse, SuccessResponse> findStudent(String studentId) {
+        if (studentId == null || studentId.isBlank()) {
+            log.error("request error, studentID is null: {}", studentId);
+            return buildErrorResponse(HttpStatus.NOT_FOUND, INVALID_STUDENT_ID_CODE);
+        }
         studentId = studentId.strip().toUpperCase();
         var isValidStudentIdResult = validateStudentId(studentId);
         if (isValidStudentIdResult.isLeft()) {
@@ -134,13 +139,7 @@ public class StudentRecord implements StudentService {
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-HttpStatus", httpStatus.toString());
 
-            return ApiResponse.builder()
-                    .isError(false)
-                    .httpStatusCode(httpStatus)
-                    .httpHeaders(headers)
-                    .responseCode(TRANSACTION_SUCCESS_CODE)
-                    .responseMessage(SuccessCode.getMessageByCode(TRANSACTION_SUCCESS_CODE))
-                    .build();
+            return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
         } catch (DataAccessException e) {
             log.error("delete error => {}", e.getMessage());
             return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
@@ -233,7 +232,7 @@ public class StudentRecord implements StudentService {
                 return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
             }
 
-            studentRepository.save(student);
+            student = studentRepository.save(student);
             accountRepository.save(accountBalance);
 
             return buildSuccessResponse(objectMapper.valueToTree(StudentToStudentResponseMapper.INSTANCE.toStudentResponse(student)),
