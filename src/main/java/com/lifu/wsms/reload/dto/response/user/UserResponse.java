@@ -3,10 +3,15 @@ package com.lifu.wsms.reload.dto.response.user;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
+import com.lifu.wsms.reload.entity.user.OAuthToken;
+import com.lifu.wsms.reload.entity.user.Role;
 import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.enums.UserRolesGroup;
 import com.lifu.wsms.reload.enums.UserStatus;
 import lombok.*;
+
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -16,7 +21,7 @@ import lombok.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserResponse {
     private String username;
-    private String password;
+    private char[] password;
     private UserStatus status;
     private String designation;
     private String email;
@@ -26,11 +31,12 @@ public class UserResponse {
     private Gender gender;
     private Address address;
     private Contact contact;
-    private UserRolesGroup userGroup;
-    private long createdAt;
-    private long lastModifiedAt;
+    private String createdAt;
+    private String lastUpdatedAt;
     private String actionBy;
     private String lastActionBy;
     private boolean passwordSet;
-    private long lastPasswordChangeAt;
+    private String lastPasswordChangedAt;
+    private Set<Role> roles;
+    private List<OAuthToken> refreshTokens;
 }

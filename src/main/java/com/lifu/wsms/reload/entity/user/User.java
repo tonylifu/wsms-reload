@@ -33,6 +33,8 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String mobile;
 
+    private char[] password;
+
     @Column(nullable = false)
     private String firstName;
 
@@ -68,11 +70,9 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @Column(nullable = false)
     private long createdAt;
 
-    @Column(nullable = false)
-    private long lastUpdateAt;
+    private long lastUpdatedAt;
 
     @Column(nullable = false)
     private String actionBy;
@@ -82,6 +82,5 @@ public class User implements Serializable {
 
     private boolean isPasswordSet;
 
-    @Column(nullable = false)
     private long lastPasswordChangedAt;
 }

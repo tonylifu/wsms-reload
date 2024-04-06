@@ -1,4 +1,4 @@
-package com.lifu.wsms.reload.api.contract;
+package com.lifu.wsms.reload.api.contract.transaction;
 
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 

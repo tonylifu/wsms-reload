@@ -1,5 +1,6 @@
 package com.lifu.wsms.reload.service.user;
 
+import com.lifu.wsms.reload.api.ErrorCode;
 import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+import static com.lifu.wsms.reload.api.AppUtil.BAD_REQUEST_INVALID_PARAMS_CODE;
 import static com.lifu.wsms.reload.util.UserTestUtil.getCreateUserDTO;
 import static com.lifu.wsms.reload.util.UserTestUtil.getUpdateUserDTO;
 import static org.junit.jupiter.api.Assertions.*;
@@ -119,6 +121,20 @@ class UserRecordTest {
         //finally when you delete
         ApiResponse deleteUserResponse = deleteUser(username);
         assertEquals(HttpStatus.OK, deleteUserResponse.getHttpStatusCode());
+    }
+
+    @Test
+    void createUserWhenCreateUserDTOIsNull() {
+        //Given a null CreateUserRequest object
+        CreateUserRequest createUserRequest = null;
+
+        //When - a user is created
+        Either<FailureResponse, SuccessResponse> createUserResponse = createUser(createUserRequest);
+
+        //Then
+        assertTrue(createUserResponse.isLeft());
+        assertEquals(HttpStatus.BAD_REQUEST, createUserResponse.getLeft().getApiResponse().getHttpStatusCode());
+        assertEquals(BAD_REQUEST_INVALID_PARAMS_CODE, createUserResponse.getLeft().getApiResponse().getResponseCode());
     }
 
     private Either<FailureResponse, SuccessResponse> createUser(CreateUserRequest createUserRequest) {

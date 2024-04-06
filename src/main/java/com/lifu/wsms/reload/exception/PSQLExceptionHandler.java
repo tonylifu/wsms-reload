@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import static com.lifu.wsms.reload.api.AppUtil.PSQL_PERSISTENCE_ERROR_CODE;
-import static com.lifu.wsms.reload.service.student.StudentApiService.buildErrorResponse;
+import static com.lifu.wsms.reload.service.ApiService.buildErrorResponse;
 
 @RestControllerAdvice
 @Slf4j

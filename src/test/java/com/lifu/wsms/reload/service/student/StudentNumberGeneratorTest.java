@@ -1,7 +1,7 @@
 package com.lifu.wsms.reload.service.student;
 
 import com.lifu.wsms.reload.api.AppUtil;
-import com.lifu.wsms.reload.api.contract.StudentNumberService;
+import com.lifu.wsms.reload.api.contract.student.StudentNumberService;
 import com.lifu.wsms.reload.repository.StudentNumberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
