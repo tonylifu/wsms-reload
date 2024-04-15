@@ -68,7 +68,6 @@ public class UserRecord implements UserService {
             return Either.right(
                     userRepository.findByUsername(username)
                             .map(user -> {
-                                log.info("\n\n\n{}\n\n\n", user);
                                 return buildSuccessResponse(
                                         objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)
                                         ),
