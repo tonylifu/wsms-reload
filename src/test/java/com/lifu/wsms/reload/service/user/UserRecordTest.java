@@ -113,6 +113,7 @@ class UserRecordTest {
 
         //Then
         assertTrue(findUserResponseAfterRemovedAllRoles.isRight());
+        System.out.println(findUserResponseAfterRemovedAllRoles.get().getBody().get("roles"));
         assertEquals(someRoles.size(), findUserResponseAfterRemovedAllRoles.get().getBody().get("roles").size());
         assertEquals(UserStatus.CREATED.getDisplayName().toLowerCase(), findUserResponseAfterRemovedAllRoles.get().getBody().get("status").asText().toLowerCase());
 

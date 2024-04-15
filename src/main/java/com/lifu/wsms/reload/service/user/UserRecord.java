@@ -26,8 +26,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -70,6 +68,7 @@ public class UserRecord implements UserService {
             return Either.right(
                     userRepository.findByUsername(username)
                             .map(user -> {
+                                log.info("\n\n\n{}\n\n\n", user);
                                 return buildSuccessResponse(
                                         objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)
                                         ),
