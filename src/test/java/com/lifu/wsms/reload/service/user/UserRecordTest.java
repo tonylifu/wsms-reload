@@ -149,6 +149,15 @@ class UserRecordTest {
         Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovingAllRoles = findUser(username);
         assertEquals(0, findUserResponseAfterRemovingAllRoles.get().getBody().get("roles").size());
 
+        //When you add roles and update status again
+        Set<UserRole> userRoles2 = Set.of(UserRole.SECURITY, UserRole.ADMIN, UserRole.BURSAR, UserRole.CASHIER, UserRole.TEACHER);
+        ApiResponse addUserRolesResponse2 = addRoles(username, userRoles2);
+
+        //Then
+        assertEquals(HttpStatus.NO_CONTENT, addUserRolesResponse2.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovingAllRoles2 = findUser(username);
+        assertEquals(userRoles2.size(), findUserResponseAfterRemovingAllRoles2.get().getBody().get("roles").size());
+
         //finally when you delete
         ApiResponse deleteUserResponse = deleteUser(username);
         assertEquals(HttpStatus.NO_CONTENT, deleteUserResponse.getHttpStatusCode());
