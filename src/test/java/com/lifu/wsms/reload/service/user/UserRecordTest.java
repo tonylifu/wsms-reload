@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled
 class UserRecordTest {
     @Autowired
     private UserService userService;
@@ -43,7 +42,6 @@ class UserRecordTest {
     private UserRepository userRepository;
 
     @Test
-//    @Transactional
     public void createUserFindUpdateSetPasswordChangePasswordAddRemoveRoleAndDelete() {
         //Given
         var createUserRequest = getCreateUserDTO();
@@ -111,17 +109,11 @@ class UserRecordTest {
         ApiResponse addSomeRoles = addRoles(username, someRoles);
         assertEquals(HttpStatus.NO_CONTENT, addSomeRoles.getHttpStatusCode());
 
-        //When you remove all roles, add some roles and update status
-        ApiResponse removeAllRolesResponse = removeAllRoles(username);
-        //roleRepository.deleteByUserId(userRepository.findByUsername(username).get().getId());
-        //roleRepository.deleteAll();
-
-        assertEquals(HttpStatus.NO_CONTENT, removeAllRolesResponse.getHttpStatusCode());
         Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovedAllRoles = findUser(username);
 
         //Then
         assertTrue(findUserResponseAfterRemovedAllRoles.isRight());
-        assertEquals(0, findUserResponseAfterRemovedAllRoles.get().getBody().get("roles").size());
+        assertEquals(someRoles.size(), findUserResponseAfterRemovedAllRoles.get().getBody().get("roles").size());
         assertEquals(UserStatus.CREATED.getDisplayName().toLowerCase(), findUserResponseAfterRemovedAllRoles.get().getBody().get("status").asText().toLowerCase());
 
         //When you add roles and update status
@@ -134,7 +126,6 @@ class UserRecordTest {
         assertEquals(HttpStatus.NO_CONTENT, updateUserStatusResponse.getHttpStatusCode());
 
         //When you query user after adding roles and updating status from created to active
-        //removeAllRoles(username); //TODO - pls remove
         Either<FailureResponse, SuccessResponse> findUserResponseAddingRolesAndUpdatingStatus = findUser(username);
 
         //Then
@@ -143,16 +134,34 @@ class UserRecordTest {
         assertEquals(UserStatus.ACTIVE.name(),
                 findUserResponseAddingRolesAndUpdatingStatus.get().getBody().get("status").asText());
 
+        //When you remove a single role
+        ApiResponse removeARoleResponse = removeARole(username, UserRole.ADMIN);
+        assertEquals(HttpStatus.NO_CONTENT, removeARoleResponse.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findUserAfterRemovingARole = findUser(username);
+
+        //Then
+        assertTrue(findUserAfterRemovingARole.isRight());
+        assertEquals(userRoles.size() - 1, findUserAfterRemovingARole.get().getBody().get("roles").size());
+
+        //When you remove all roles, add some roles and update status
+        ApiResponse removeAllRolesResponse = removeAllRoles(username);
+        assertEquals(HttpStatus.NO_CONTENT, removeAllRolesResponse.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovingAllRoles = findUser(username);
+        assertEquals(0, findUserResponseAfterRemovingAllRoles.get().getBody().get("roles").size());
+
+        //When you add roles and update status again
+        Set<UserRole> userRoles2 = Set.of(UserRole.SECURITY, UserRole.ADMIN, UserRole.BURSAR, UserRole.CASHIER, UserRole.TEACHER);
+        ApiResponse addUserRolesResponse2 = addRoles(username, userRoles2);
+
+        //Then
+        assertEquals(HttpStatus.NO_CONTENT, addUserRolesResponse2.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovingAllRoles2 = findUser(username);
+        assertEquals(userRoles2.size(), findUserResponseAfterRemovingAllRoles2.get().getBody().get("roles").size());
+
         //finally when you delete
         ApiResponse deleteUserResponse = deleteUser(username);
         assertEquals(HttpStatus.NO_CONTENT, deleteUserResponse.getHttpStatusCode());
     }
-
-//    @Test
-//    @Transactional
-//    void notATest() {
-//        roleRepository.deleteByUserId(1L);
-//    }
 
     @Test
     void createUserWhenCreateUserDTOIsNull() {
@@ -194,6 +203,10 @@ class UserRecordTest {
 
     private ApiResponse addRoles(String username, Set<UserRole> roles) {
         return userService.addRoles(username, roles);
+    }
+
+    private ApiResponse removeARole(String username, UserRole role) {
+        return userService.removeRole(username, role);
     }
 
     private ApiResponse removeAllRoles(String username) {

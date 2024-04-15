@@ -16,8 +16,7 @@ public interface UserToUserResponseMapper {
     @Mapping(target = "lastUpdatedAt", source = "lastUpdatedAt", qualifiedByName = "longToLocalDateTimeString")
     @Mapping(target = "lastPasswordChangedAt", source = "lastPasswordChangedAt", qualifiedByName = "longToLocalDateTimeString")
     @Mapping(target = "fullName", expression = "java(concatenateNamesToFullName(user))")
-    @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "refreshTokens", ignore = true)
+//    @Mapping(target = "refreshTokens", ignore = true)
     UserResponse toUserResponse(User user);
     @Named("longToLocalDateString")
     default String mapLongToLocalDateString(long dob) {
@@ -34,9 +33,5 @@ public interface UserToUserResponseMapper {
         return getFullName(user.getFirstName(), user.getMiddleName(), user.getLastName());
     }
 
-    @AfterMapping
-    default void mapRolesAndRefreshTokens(User user, @MappingTarget UserResponse userResponse) {
-        userResponse.setRoles(user.getRoles());
-        userResponse.setRefreshTokens(user.getRefreshTokens());
-    }
+
 }

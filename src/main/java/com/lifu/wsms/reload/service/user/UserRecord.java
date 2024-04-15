@@ -3,6 +3,7 @@ package com.lifu.wsms.reload.service.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.contract.user.UserService;
+import com.lifu.wsms.reload.dto.Item;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
@@ -25,15 +26,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
 import static com.lifu.wsms.reload.service.ApiService.*;
@@ -69,7 +68,6 @@ public class UserRecord implements UserService {
             return Either.right(
                     userRepository.findByUsername(username)
                             .map(user -> {
-                                log.info("\n\n\n{}\n\n\n", user);
                                 return buildSuccessResponse(
                                         objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)
                                         ),
@@ -260,7 +258,12 @@ public class UserRecord implements UserService {
             return userRepository.findByUsername(username)
                     .map(user -> {
                         long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
-                        user.setRoles(getRoleEntity(roles));
+                        Set<Item> roleItems = getRoleItems(roles);
+                        Set<Item> newRoles = roles.stream().map(r -> new Item(r.name())).collect(Collectors.toSet());
+                        Set<Item> combinedSet = new HashSet<>(roleItems);
+                        combinedSet.addAll(user.getRoles());
+                        combinedSet.addAll(newRoles);
+                        user.setRoles(combinedSet);
                         user.setLastUpdatedAt(timeStamp);
                         user.setLastActionBy(AppUtil.getUserFromSecurityContext());
                         User savedUser = userRepository.save(user);
@@ -281,7 +284,7 @@ public class UserRecord implements UserService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
+    @Transactional
     @Override
     public ApiResponse removeAllRoles(String username) {
         if (username == null || username.isEmpty()) {
@@ -291,14 +294,12 @@ public class UserRecord implements UserService {
         try {
             return userRepository.findByUsername(username)
                     .map(user -> {
-//                        deleteUserRoles(user.getId());
                         long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
-                        Set<Role> roles = new HashSet<>();
+                        Set<Item> roles = new HashSet<>();
                         user.setRoles(roles);
                         user.setLastUpdatedAt(timeStamp);
                         user.setLastActionBy(AppUtil.getUserFromSecurityContext());
                         User savedUser = userRepository.save(user);
-//                        deleteUserRoles(savedUser.getId());
                         HttpStatus httpStatus = HttpStatus.NO_CONTENT;
                         HttpHeaders headers = new HttpHeaders();
                         headers.add("X-HttpStatus", httpStatus.toString());
@@ -331,7 +332,6 @@ public class UserRecord implements UserService {
                         user.setLastUpdatedAt(timeStamp);
                         user.setLastActionBy(AppUtil.getUserFromSecurityContext());
                         User savedUser = userRepository.save(user);
-                        deleteUserRoles(savedUser.getId());
                         HttpStatus httpStatus = HttpStatus.NO_CONTENT;
                         HttpHeaders headers = new HttpHeaders();
                         headers.add("X-HttpStatus", httpStatus.toString());
@@ -349,43 +349,19 @@ public class UserRecord implements UserService {
         }
     }
 
-    @Transactional
-    protected void deleteUserRoles(Long id) {
-        roleRepository.deleteByUserId(id);
-    }
-
     /**
-     * Converts a set of user roles to a set of Role entities.
+     * Retrieves the items associated with the provided set of user roles.
+     * If the roles do not already exist in the database, they are created.
      *
-     * @param roles the set of user roles to be converted.
-     * @return a set of Role entities corresponding to the provided user roles.
+     * @param roles a set of user roles to be used for retrieving items
+     * @return a set of items associated with the provided user roles
+     * @throws RuntimeException if an error occurs while retrieving or creating roles
      */
     @Transactional
-    protected Set<Role> getRoleEntity(Set<UserRole> roles) {
-        try {
-            List<Role> roleList = roleRepository.findAll();
-            Set<Role> roleSet = new HashSet<>();
-            for (UserRole role : roles) {
-                Optional<Role> optionalRole = roleRepository.findByName(role.name());
-                if (optionalRole.isPresent()) {
-                    roleSet.add(optionalRole.get());
-                } else {
-                    Role newRole = new Role();
-                    newRole.setName(role.name());
-                    roleSet.add(newRole);
-                }
-            }
-            roleRepository.saveAll(roleSet);
-            return roleSet;
-
-//            return roles.stream()
-//                    .map(role -> roleRepository.findByName(role.name()))
-//                    .flatMap(Optional::stream)
-//                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            log.error("role persistence error: {}", e.getMessage());
-            throw new RuntimeException(e);
-        }
+    protected Set<Item> getRoleItems(Set<UserRole> roles) {
+        return createRolesIfNotAlreadyExisting(roles.stream()
+                .map(role -> new Item(role.name()))
+                .collect(Collectors.toSet()));
     }
 
 
@@ -458,6 +434,33 @@ public class UserRecord implements UserService {
         user.setCreatedAt(now);
         user.setLastUpdatedAt(now);
         user.setUsername(user.getUsername().strip().toUpperCase());
+        if (user.getRoles() != null || !user.getRoles().isEmpty()) {
+            createRolesIfNotAlreadyExisting(user.getRoles());
+        }
         return user;
+    }
+
+    /**
+     * Creates roles based on the provided set of items if they do not already exist in the database.
+     *
+     * @param roles a set of items representing roles to be created if they do not exist
+     * @return a set of roles created or retrieved from the database
+     */
+    private Set<Item> createRolesIfNotAlreadyExisting(Set<Item> roles) {
+        Set<Role> roleSet = roles.stream()
+                .filter(role -> !roleRepository.existsByName(role.getName()))
+                .map(role -> {
+                    Role newRole = new Role();
+                    newRole.setName(role.getName());
+                    return newRole;
+                })
+                .collect(Collectors.toSet());
+        if (!roleSet.isEmpty()) {
+            List<Role> roleList = roleRepository.saveAll(roleSet);
+            log.info("{} new Roles Added: {}", roleList.size(), roleList);
+        }
+        return roleSet.stream()
+                .map(role -> new Item(role.getName()))
+                .collect(Collectors.toSet());
     }
 }

@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -26,5 +30,5 @@ public class CreateUserRequest {
     private Gender gender;
     private Address address;
     private Contact contact;
-    private boolean passwordSet;
+    private Set<UserRole> roles;
 }

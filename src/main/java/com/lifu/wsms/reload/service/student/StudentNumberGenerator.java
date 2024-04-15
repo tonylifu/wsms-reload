@@ -28,7 +28,6 @@ public class StudentNumberGenerator implements StudentNumberService {
     @Transactional(propagation = Propagation.REQUIRED)
     public String generateNextStudentId(int currentYear) {
         Optional<StudentNumber> studentNumberResult = findLastCreatedStudentByCurrentYear(currentYear);
-        log.info("::::StudentNumber Response::::\n{}", studentNumberResult);
         int nextStudentNumber = studentNumberResult.map(studentNumber -> studentNumber.getStudentNumber() + 1).orElse(1);
         String formattedStudentNumber = String.format("%04d", nextStudentNumber);
         persistStudentNumber(currentYear, formattedStudentNumber);

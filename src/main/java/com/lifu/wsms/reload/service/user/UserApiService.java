@@ -2,6 +2,7 @@ package com.lifu.wsms.reload.service.user;
 
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.api.ErrorCode;
+import com.lifu.wsms.reload.dto.Item;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
@@ -130,9 +131,9 @@ public class UserApiService {
         }
         if (updateUserRequest.getRoles() != null) {
             // Convert UserRole set to Role entities and set it to user roles
-            Set<Role> roles = new HashSet<>();
+            Set<Item> roles = new HashSet<>();
             for (UserRole userRole : updateUserRequest.getRoles()) {
-                Role role = new Role();
+                Item role = new Item();
                 role.setName(userRole.name());
                 roles.add(role);
             }

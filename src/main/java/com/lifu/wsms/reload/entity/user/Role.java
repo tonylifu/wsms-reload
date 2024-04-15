@@ -1,7 +1,10 @@
 package com.lifu.wsms.reload.entity.user;
 
+import com.lifu.wsms.reload.dto.Item;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -20,12 +23,6 @@ public class Role implements Serializable {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<Permission> permissions = new HashSet<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Set<Item> permissions = new HashSet<>();
 }
