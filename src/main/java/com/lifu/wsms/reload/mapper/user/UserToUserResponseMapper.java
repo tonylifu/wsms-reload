@@ -3,9 +3,7 @@ package com.lifu.wsms.reload.mapper.user;
 import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.dto.response.user.UserResponse;
 import com.lifu.wsms.reload.entity.user.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import static com.lifu.wsms.reload.api.AppUtil.*;
@@ -18,6 +16,8 @@ public interface UserToUserResponseMapper {
     @Mapping(target = "lastUpdatedAt", source = "lastUpdatedAt", qualifiedByName = "longToLocalDateTimeString")
     @Mapping(target = "lastPasswordChangedAt", source = "lastPasswordChangedAt", qualifiedByName = "longToLocalDateTimeString")
     @Mapping(target = "fullName", expression = "java(concatenateNamesToFullName(user))")
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "refreshTokens", ignore = true)
     UserResponse toUserResponse(User user);
     @Named("longToLocalDateString")
     default String mapLongToLocalDateString(long dob) {
@@ -32,5 +32,11 @@ public interface UserToUserResponseMapper {
     @Named("concatenateNamesToFullName")
     default String concatenateNamesToFullName(User user) {
         return getFullName(user.getFirstName(), user.getMiddleName(), user.getLastName());
+    }
+
+    @AfterMapping
+    default void mapRolesAndRefreshTokens(User user, @MappingTarget UserResponse userResponse) {
+        userResponse.setRoles(user.getRoles());
+        userResponse.setRefreshTokens(user.getRefreshTokens());
     }
 }

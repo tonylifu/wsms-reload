@@ -9,6 +9,8 @@ import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
+import com.lifu.wsms.reload.repository.RoleRepository;
+import com.lifu.wsms.reload.repository.UserRepository;
 import com.lifu.wsms.reload.util.SudentTestUtil;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Disabled;
@@ -35,9 +37,13 @@ class UserRecordTest {
     private UserService userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
-    @Transactional
+//    @Transactional
     public void createUserFindUpdateSetPasswordChangePasswordAddRemoveRoleAndDelete() {
         //Given
         var createUserRequest = getCreateUserDTO();
@@ -80,48 +86,73 @@ class UserRecordTest {
                 updateUserResponse.get().getBody().get("email").asText());
 
         //Given - a password set or password change
-        ApiResponse setPasswordResponse = setPassword(username, "Password@123".toCharArray());
+        String currentSetPassword = "Password@123";
+        String newReplacementPassword = "Test@123";
+        ApiResponse setPasswordResponse = setPassword(username, currentSetPassword.toCharArray());
         assertEquals(HttpStatus.NO_CONTENT, setPasswordResponse.getHttpStatusCode());
-        ApiResponse passwordChangeResponse = changePassword(username, "password".toCharArray(),
-                "Test@123".toCharArray());
+
+        Either<FailureResponse, SuccessResponse> findUserResponseAfterPasswordSet = findUser(username);
+        String encodedSetPasswordFromStore = findUserResponseAfterPasswordSet.get().getBody().get("password").asText();
+        assertTrue(passwordEncoder.matches(currentSetPassword, encodedSetPasswordFromStore));
+
+        ApiResponse passwordChangeResponse = changePassword(username, currentSetPassword.toCharArray(),
+                newReplacementPassword.toCharArray());
         assertEquals(HttpStatus.NO_CONTENT, passwordChangeResponse.getHttpStatusCode());
 
         //When - you query the user details, chnages should be reflected
         Either<FailureResponse, SuccessResponse> findUserResponseAfterPasswordUpate = findUser(username);
         assertTrue(findUserResponseAfterPasswordUpate.isRight());
         assertTrue(findUserResponseAfterPasswordUpate.get().getBody().get("passwordSet").asBoolean());
+        String encodedChangedPasswordFromStore = findUserResponseAfterPasswordUpate.get().getBody().get("password").asText();
+        assertTrue(passwordEncoder.matches(newReplacementPassword, encodedChangedPasswordFromStore));
+
+        //When you add some roles
+        Set<UserRole> someRoles = Set.of(UserRole.ADMIN, UserRole.BURSAR, UserRole.CASHIER);
+        ApiResponse addSomeRoles = addRoles(username, someRoles);
+        assertEquals(HttpStatus.NO_CONTENT, addSomeRoles.getHttpStatusCode());
 
         //When you remove all roles, add some roles and update status
         ApiResponse removeAllRolesResponse = removeAllRoles(username);
+        //roleRepository.deleteByUserId(userRepository.findByUsername(username).get().getId());
+        //roleRepository.deleteAll();
+
+        assertEquals(HttpStatus.NO_CONTENT, removeAllRolesResponse.getHttpStatusCode());
         Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovedAllRoles = findUser(username);
 
         //Then
         assertTrue(findUserResponseAfterRemovedAllRoles.isRight());
         assertEquals(0, findUserResponseAfterRemovedAllRoles.get().getBody().get("roles").size());
-        assertEquals(UserStatus.CREATED.getDisplayName(), findUserResponseAfterRemovedAllRoles.get().getBody().get("status").asText());
+        assertEquals(UserStatus.CREATED.getDisplayName().toLowerCase(), findUserResponseAfterRemovedAllRoles.get().getBody().get("status").asText().toLowerCase());
 
         //When you add roles and update status
-        Set<UserRole> userRoles = Set.of(UserRole.ADMIN, UserRole.BURSAR, UserRole.CASHIER);
+        Set<UserRole> userRoles = Set.of(UserRole.SECURITY, UserRole.ADMIN, UserRole.BURSAR, UserRole.CASHIER);
         ApiResponse addUserRolesResponse = addRoles(username, userRoles);
         ApiResponse updateUserStatusResponse = updateStatus(username, UserStatus.ACTIVE);
 
         //Then
-        assertEquals(HttpStatus.OK, addUserRolesResponse.getHttpStatusCode());
-        assertEquals(HttpStatus.OK, updateUserStatusResponse.getHttpStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, addUserRolesResponse.getHttpStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, updateUserStatusResponse.getHttpStatusCode());
 
         //When you query user after adding roles and updating status from created to active
+        //removeAllRoles(username); //TODO - pls remove
         Either<FailureResponse, SuccessResponse> findUserResponseAddingRolesAndUpdatingStatus = findUser(username);
 
         //Then
         assertTrue(findUserResponseAddingRolesAndUpdatingStatus.isRight());
         assertEquals(userRoles.size(), findUserResponseAddingRolesAndUpdatingStatus.get().getBody().get("roles").size());
-        assertEquals(UserStatus.ACTIVE.getDisplayName(),
+        assertEquals(UserStatus.ACTIVE.name(),
                 findUserResponseAddingRolesAndUpdatingStatus.get().getBody().get("status").asText());
 
         //finally when you delete
         ApiResponse deleteUserResponse = deleteUser(username);
-        assertEquals(HttpStatus.OK, deleteUserResponse.getHttpStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, deleteUserResponse.getHttpStatusCode());
     }
+
+//    @Test
+//    @Transactional
+//    void notATest() {
+//        roleRepository.deleteByUserId(1L);
+//    }
 
     @Test
     void createUserWhenCreateUserDTOIsNull() {

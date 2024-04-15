@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lifu.wsms.reload.api.contract.student.StudentService;
 import com.lifu.wsms.reload.api.contract.user.UserService;
-import com.lifu.wsms.reload.repository.AccountRepository;
-import com.lifu.wsms.reload.repository.StudentNumberRepository;
-import com.lifu.wsms.reload.repository.StudentRepository;
-import com.lifu.wsms.reload.repository.UserRepository;
+import com.lifu.wsms.reload.repository.*;
 import com.lifu.wsms.reload.service.student.StudentNumberGenerator;
 import com.lifu.wsms.reload.api.contract.student.StudentNumberService;
 import com.lifu.wsms.reload.service.student.StudentRecord;
@@ -46,8 +43,9 @@ public class ServiceConfig {
     @Bean
     public UserService userService(final ObjectMapper objectMapper,
                                    final PasswordEncoder passwordEncoder,
-                                   final UserRepository userRepository) {
-        return new UserRecord(objectMapper, passwordEncoder, userRepository);
+                                   final UserRepository userRepository,
+                                   final RoleRepository roleRepository) {
+        return new UserRecord(objectMapper, passwordEncoder, userRepository, roleRepository);
     }
 
     @Bean
