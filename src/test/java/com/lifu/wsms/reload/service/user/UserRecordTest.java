@@ -134,6 +134,15 @@ class UserRecordTest {
         assertEquals(UserStatus.ACTIVE.name(),
                 findUserResponseAddingRolesAndUpdatingStatus.get().getBody().get("status").asText());
 
+        //When you remove a single role
+        ApiResponse removeARoleResponse = removeARole(username, UserRole.ADMIN);
+        assertEquals(HttpStatus.NO_CONTENT, removeARoleResponse.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findUserAfterRemovingARole = findUser(username);
+
+        //Then
+        assertTrue(findUserAfterRemovingARole.isRight());
+        assertEquals(userRoles.size() - 1, findUserAfterRemovingARole.get().getBody().get("roles").size());
+
         //When you remove all roles, add some roles and update status
         ApiResponse removeAllRolesResponse = removeAllRoles(username);
         assertEquals(HttpStatus.NO_CONTENT, removeAllRolesResponse.getHttpStatusCode());
@@ -185,6 +194,10 @@ class UserRecordTest {
 
     private ApiResponse addRoles(String username, Set<UserRole> roles) {
         return userService.addRoles(username, roles);
+    }
+
+    private ApiResponse removeARole(String username, UserRole role) {
+        return userService.removeRole(username, role);
     }
 
     private ApiResponse removeAllRoles(String username) {
