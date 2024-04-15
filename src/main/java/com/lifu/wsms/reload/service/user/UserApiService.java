@@ -12,6 +12,7 @@ import com.lifu.wsms.reload.enums.UserRole;
 import io.vavr.control.Either;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -144,6 +145,11 @@ public class UserApiService {
         if (updateUserRequest.getGender() != null) {
             user.setGender(updateUserRequest.getGender());
         }
+
+        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
+
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastUpdatedAt(AppUtil.convertLocalDateTimeToLong(now));
 
         return user;
     }

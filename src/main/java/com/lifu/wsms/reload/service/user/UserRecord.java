@@ -8,11 +8,13 @@ import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.entity.user.Role;
 import com.lifu.wsms.reload.entity.user.User;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
 import com.lifu.wsms.reload.mapper.user.CreateUserRequestToUserMapper;
 import com.lifu.wsms.reload.mapper.user.UserToUserResponseMapper;
+import com.lifu.wsms.reload.repository.RoleRepository;
 import com.lifu.wsms.reload.repository.UserRepository;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,8 +45,10 @@ public class UserRecord implements UserService {
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Override
+    @Transactional
     public Either<FailureResponse, SuccessResponse> createUser(CreateUserRequest createUserRequest) {
         return validateCreateUser(createUserRequest)
                 .fold(Either::left, validatedRequest -> createUserEntity(createUserRequest));
@@ -59,10 +68,13 @@ public class UserRecord implements UserService {
             }
             return Either.right(
                     userRepository.findByUsername(username)
-                            .map(user -> buildSuccessResponse(
-                                    objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)
-                                    ),
-                                    HttpStatus.OK, TRANSACTION_OKAY_CODE).get())
+                            .map(user -> {
+                                log.info("\n\n\n{}\n\n\n", user);
+                                return buildSuccessResponse(
+                                        objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)
+                                        ),
+                                        HttpStatus.OK, TRANSACTION_OKAY_CODE).get();
+                            })
                             .orElseThrow(() -> new RuntimeException("request failed"))
             );
         } catch (DataAccessException e) {
@@ -75,6 +87,7 @@ public class UserRecord implements UserService {
     }
 
     @Override
+    @Transactional
     public Either<FailureResponse, SuccessResponse> updateUser(UpdateUserRequest updateUserRequest) {
         try {
             if (updateUserRequest.getUsername() != null) {
@@ -102,13 +115,14 @@ public class UserRecord implements UserService {
     }
 
     @Override
+    @Transactional
     public ApiResponse deleteUser(String username) {
         if (username == null || username.isEmpty()) {
             return buildErrorResponse(HttpStatus.BAD_REQUEST, INVALID_STUDENT_ID_CODE).getLeft().getApiResponse();
         }
         try {
             username = username.strip().toUpperCase();
-            if (!userRepository.existsByUsername(username)){
+            if (!userRepository.existsByUsername(username)) {
                 log.error("resource not found for username => {}", username);
                 return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
             }
@@ -140,6 +154,11 @@ public class UserRecord implements UserService {
             return userRepository.findByUsername(username)
                     .map(user -> {
                         user.setPassword(passwordEncoder.encode(new String(password)).toCharArray());
+                        user.setPasswordSet(true);
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        user.setLastPasswordChangedAt(timeStamp);
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
                         userRepository.save(user);
                         HttpStatus httpStatus = HttpStatus.NO_CONTENT;
                         HttpHeaders headers = new HttpHeaders();
@@ -160,24 +179,215 @@ public class UserRecord implements UserService {
 
     @Override
     public ApiResponse changePassword(String username, char[] currentPassword, char[] newPassword) {
-        //TODO - user entity to have date of last password change
-        return null;
+        if (!PasswordValidator.isPasswordStrong(newPassword)) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, WEAK_PASSWORD_CODE).getLeft().getApiResponse();
+        }
+        if (username == null || username.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, MISSING_USER_NAME_CODE).getLeft().getApiResponse();
+        }
+        username = username.strip().toUpperCase();
+        try {
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+                        if (!passwordEncoder.matches(new String(currentPassword), new String(user.getPassword()))) {
+                            return buildErrorResponse(HttpStatus.BAD_REQUEST, PASSWORD_MISMATCH_CODE)
+                                    .getLeft()
+                                    .getApiResponse();
+                        }
+                        user.setPassword(passwordEncoder.encode(new String(newPassword)).toCharArray());
+                        user.setPasswordSet(true);
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        user.setLastPasswordChangedAt(timeStamp);
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        userRepository.save(user);
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
 
     @Override
     public ApiResponse updateStatus(String username, UserStatus status) {
-        return null;
+        if (username == null || username.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, MISSING_USER_NAME_CODE).getLeft().getApiResponse();
+        }
+        username = username.strip().toUpperCase();
+        try {
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        user.setStatus(status);
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        userRepository.save(user);
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
 
     @Override
+    @Transactional
     public ApiResponse addRoles(String username, Set<UserRole> roles) {
-        return null;
+        if (username == null || username.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, MISSING_USER_NAME_CODE).getLeft().getApiResponse();
+        }
+        username = username.strip().toUpperCase();
+        try {
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        user.setRoles(getRoleEntity(roles));
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        User savedUser = userRepository.save(user);
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     @Override
     public ApiResponse removeAllRoles(String username) {
-        return null;
+        if (username == null || username.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, MISSING_USER_NAME_CODE).getLeft().getApiResponse();
+        }
+        username = username.strip().toUpperCase();
+        try {
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+//                        deleteUserRoles(user.getId());
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        Set<Role> roles = new HashSet<>();
+                        user.setRoles(roles);
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        User savedUser = userRepository.save(user);
+//                        deleteUserRoles(savedUser.getId());
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
+
+    @Override
+    @Transactional
+    public ApiResponse removeRole(String username, UserRole role) {
+        if (username == null || username.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, MISSING_USER_NAME_CODE).getLeft().getApiResponse();
+        }
+        username = username.strip().toUpperCase();
+        try {
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        user.getRoles().removeIf(r -> r.getName().equalsIgnoreCase(role.name()));
+                        user.setLastUpdatedAt(timeStamp);
+                        user.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        User savedUser = userRepository.save(user);
+                        deleteUserRoles(savedUser.getId());
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
+    }
+
+    @Transactional
+    protected void deleteUserRoles(Long id) {
+        roleRepository.deleteByUserId(id);
+    }
+
+    /**
+     * Converts a set of user roles to a set of Role entities.
+     *
+     * @param roles the set of user roles to be converted.
+     * @return a set of Role entities corresponding to the provided user roles.
+     */
+    @Transactional
+    protected Set<Role> getRoleEntity(Set<UserRole> roles) {
+        try {
+            List<Role> roleList = roleRepository.findAll();
+            Set<Role> roleSet = new HashSet<>();
+            for (UserRole role : roles) {
+                Optional<Role> optionalRole = roleRepository.findByName(role.name());
+                if (optionalRole.isPresent()) {
+                    roleSet.add(optionalRole.get());
+                } else {
+                    Role newRole = new Role();
+                    newRole.setName(role.name());
+                    roleSet.add(newRole);
+                }
+            }
+            roleRepository.saveAll(roleSet);
+            return roleSet;
+
+//            return roles.stream()
+//                    .map(role -> roleRepository.findByName(role.name()))
+//                    .flatMap(Optional::stream)
+//                    .collect(Collectors.toSet());
+        } catch (Exception e) {
+            log.error("role persistence error: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * Creates a new user entity based on the provided {@code createUserRequest}.
@@ -189,7 +399,7 @@ public class UserRecord implements UserService {
      *
      * @param createUserRequest the request object containing user details to be created
      * @return an {@link Either} instance containing either a {@link FailureResponse} if an error occurs
-     *         or a {@link SuccessResponse} if the user entity is successfully created
+     * or a {@link SuccessResponse} if the user entity is successfully created
      * @see User
      * @see CreateUserRequest
      * @see FailureResponse
@@ -208,8 +418,6 @@ public class UserRecord implements UserService {
                 return buildErrorResponse(HttpStatus.BAD_REQUEST, DUPLICATE_PERSISTENCE_ERROR_CODE);
             }
             user = userRepository.save(user);
-
-            System.out.println(user);
 
             return buildSuccessResponse(objectMapper.valueToTree(UserToUserResponseMapper.INSTANCE.toUserResponse(user)),
                     HttpStatus.CREATED, TRANSACTION_CREATED_CODE);
@@ -241,11 +449,11 @@ public class UserRecord implements UserService {
      * @see CreateUserRequest
      * @see CreateUserRequestToUserMapper
      * @see UserStatus
-     * @see AppUtil#convertLocalDateToLong(LocalDate)
+     * @see AppUtil#convertLocalDateTimeToLong(LocalDateTime)
      */
     private User getUserEntity(CreateUserRequest createUserRequest) {
         User user = CreateUserRequestToUserMapper.INSTANCE.toUser(createUserRequest);
-        long now = convertLocalDateToLong(LocalDate.now());
+        long now = convertLocalDateTimeToLong(LocalDateTime.now());
         user.setStatus(UserStatus.CREATED);
         user.setCreatedAt(now);
         user.setLastUpdatedAt(now);

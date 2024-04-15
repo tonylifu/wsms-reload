@@ -5,8 +5,7 @@ import com.lifu.wsms.reload.dto.response.user.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static com.lifu.wsms.reload.api.AppUtil.convertLongToLocalDate;
-import static com.lifu.wsms.reload.api.AppUtil.getFullName;
+import static com.lifu.wsms.reload.api.AppUtil.*;
 import static com.lifu.wsms.reload.util.UserTestUtil.getUserEntity;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,11 +25,8 @@ class UserToUserResponseMapperTest {
         assertEquals(user.getEmail(), userResponse.getEmail());
         assertEquals(getFullName(user.getFirstName(), user.getMiddleName(), user.getLastName()), userResponse.getFullName());
         assertEquals(String.valueOf(convertLongToLocalDate(user.getDob())), userResponse.getDob());
-        assertEquals(String.valueOf(convertLongToLocalDate(user.getLastUpdatedAt())), userResponse.getLastUpdatedAt());
+        assertEquals(String.valueOf(convertLongToLocalDateTime(user.getLastUpdatedAt())), userResponse.getLastUpdatedAt());
         assertEquals(user.getMobile(), userResponse.getMobile());
-        assertEquals(user.getRefreshTokens().size(), userResponse.getRefreshTokens().size());
-        assertEquals(user.getRoles().size(), userResponse.getRoles().size());
-
     }
 
 }

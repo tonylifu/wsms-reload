@@ -6,7 +6,7 @@ public enum UserRole {
     CASHIER("CASHIER"),
     BURSAR("BURSAR"),
     SECURITY("SECURITY"),
-    OTHER("Other");
+    NONE("NONE");
 
     private final String displayName;
 

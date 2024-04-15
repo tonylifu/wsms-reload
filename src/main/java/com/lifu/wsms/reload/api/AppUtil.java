@@ -11,10 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Year;
-import java.time.ZoneOffset;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -60,6 +58,7 @@ public class AppUtil implements ApplicationContextAware {
     public static final String INVALID_DOB_CODE = "902";
     public static final String MISSING_USER_NAME_CODE = "903";
     public static final String WEAK_PASSWORD_CODE = "904";
+    public static final String PASSWORD_MISMATCH_CODE = "905";
     //Data Persistence
     public static final String DATA_PERSISTENCE_ERROR_CODE = "950";
     public static final String DUPLICATE_PERSISTENCE_ERROR_CODE = "951";
@@ -86,12 +85,26 @@ public class AppUtil implements ApplicationContextAware {
     }
 
     /**
-     * Method to generate a random four-digit number
-     * @return int
+     * Converts a {@link LocalDateTime} object to a long value representing the number of milliseconds
+     * since the epoch of 1970-01-01T00:00:00Z (UTC).
+     *
+     * @param localDateTime the {@link LocalDateTime} to convert
+     * @return the number of milliseconds since the epoch of 1970-01-01T00:00:00Z (UTC)
+     * @throws NullPointerException if {@code localDateTime} is {@code null}
      */
-    private static int generateRandomNumber() {
-        Random random = new Random();
-        return random.nextInt(9000) + 1000; // Generates a random number between 100 and 999
+    public static long convertLocalDateTimeToLong(LocalDateTime localDateTime) {
+        return localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+    }
+
+    /**
+     * Converts a long value representing the number of milliseconds since the epoch of 1970-01-01T00:00:00Z (UTC)
+     * to a {@link LocalDateTime} object.
+     *
+     * @param milliseconds the number of milliseconds since the epoch of 1970-01-01T00:00:00Z (UTC)
+     * @return the {@link LocalDateTime} corresponding to the given number of milliseconds
+     */
+    public static LocalDateTime convertLongToLocalDateTime(long milliseconds) {
+        return Instant.ofEpochMilli(milliseconds).atZone(ZoneOffset.UTC).toLocalDateTime();
     }
 
     /**
