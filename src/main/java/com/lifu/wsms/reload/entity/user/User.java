@@ -2,6 +2,7 @@ package com.lifu.wsms.reload.entity.user;
 
 import com.lifu.wsms.reload.dto.Address;
 import com.lifu.wsms.reload.dto.Contact;
+import com.lifu.wsms.reload.dto.Item;
 import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.enums.UserStatus;
 import jakarta.persistence.*;
@@ -56,14 +57,11 @@ public class User implements Serializable {
     @JdbcTypeCode(SqlTypes.JSON)
     private Contact contact;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Set<Item> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OAuthToken> refreshTokens;
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<OAuthToken> refreshTokens;
 
     private String designation;
 

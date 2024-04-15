@@ -33,5 +33,6 @@ class CreateUserRequestToUserMapperTest {
         assertEquals(userRequest.getMobile(), user.getMobile());
         assertEquals(userRequest.getUsername(), user.getUsername());
         assertEquals(userRequest.getGender(), user.getGender());
+        assertEquals(userRequest.getRoles().size(), user.getRoles().size());
     }
 }

@@ -1,10 +1,9 @@
 package com.lifu.wsms.reload.util;
 
 import com.lifu.wsms.reload.api.AppUtil;
+import com.lifu.wsms.reload.dto.Item;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
-import com.lifu.wsms.reload.entity.user.OAuthToken;
-import com.lifu.wsms.reload.entity.user.Role;
 import com.lifu.wsms.reload.entity.user.User;
 import com.lifu.wsms.reload.enums.Gender;
 import com.lifu.wsms.reload.enums.UserRole;
@@ -29,6 +28,7 @@ public class UserTestUtil {
                 .dob("2010-01-01")
                 .gender(Gender.MALE)
                 .status(UserStatus.CREATED)
+                .roles(Set.of(UserRole.ADMIN, UserRole.BURSAR))
                 .build();
     }
 
@@ -51,8 +51,7 @@ public class UserTestUtil {
         user.setDob(AppUtil.convertLocalDateToLong(LocalDate.of(2010, 1, 1)));
         user.setEmail("test@test.com");
         user.setMobile("07766433489");
-        user.setRoles(Set.of(new Role()));
-        user.setRefreshTokens(List.of(new OAuthToken()));
+        user.setRoles(Set.of(new Item()));
         return user;
     }
 }

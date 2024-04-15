@@ -27,6 +27,7 @@ class UserToUserResponseMapperTest {
         assertEquals(String.valueOf(convertLongToLocalDate(user.getDob())), userResponse.getDob());
         assertEquals(String.valueOf(convertLongToLocalDateTime(user.getLastUpdatedAt())), userResponse.getLastUpdatedAt());
         assertEquals(user.getMobile(), userResponse.getMobile());
+        assertEquals(user.getRoles().size(), userResponse.getRoles().size());
     }
 
 }
