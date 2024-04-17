@@ -1,14 +1,18 @@
 package com.lifu.wsms.reload.service.user;
 
+import com.lifu.wsms.reload.api.contract.user.RoleService;
 import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import com.lifu.wsms.reload.enums.UserPermission;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
 import io.vavr.control.Either;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,21 +22,75 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Set;
 
-import static com.lifu.wsms.reload.api.AppUtil.BAD_REQUEST_INVALID_PARAMS_CODE;
 import static com.lifu.wsms.reload.util.UserTestUtil.getCreateUserDTO;
 import static com.lifu.wsms.reload.util.UserTestUtil.getUpdateUserDTO;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class UserRecordTest {
+class RoleRecordTest {
     @Autowired
     private UserService userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleService roleService;
+
+    @BeforeEach
+    void setUp() {
+        setupAUser();
+    }
+
+    @AfterEach
+    void tearDown() {
+        tearDownAUser();
+    }
+
 
     @Test
-    public void createUserFindUpdateSetPasswordChangePasswordAddRemoveRoleAndDelete() {
+    void findAllRoles() {
+        int pageSize = 10;
+        int pageNumber = 0;
+        Either<FailureResponse, SuccessResponse> allRoles = roleService.findAllRoles(pageNumber, pageSize);
+        assertTrue(allRoles.isRight());
+        assertEquals(HttpStatus.OK, allRoles.get().getApiResponse().getHttpStatusCode());
+        assertEquals(5, allRoles.get().getBody().get("roles").size());
+    }
+
+    @Test
+    void findRolesByUser() {
+        var username = getCreateUserDTO().getUsername();
+        Either<FailureResponse, SuccessResponse> rolesByUser = roleService.findRolesByUser(username);
+        assertTrue(rolesByUser.isRight());
+        assertEquals(HttpStatus.OK, rolesByUser.get().getApiResponse().getHttpStatusCode());
+        assertEquals(5, rolesByUser.get().getBody().get("roles").size());
+    }
+
+    @Test
+    void addPermissions() {
+        UserRole role = UserRole.ADMIN;
+        var permissions = Set.of(UserPermission.STUDENT_CREATE, UserPermission.STUDENT_READ);
+        ApiResponse addPermissions = roleService.addPermissionsToRole(role, permissions);
+        assertEquals(HttpStatus.NO_CONTENT, addPermissions.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findPermissions = roleService.findPermissionsByRole(role);
+        assertTrue(findPermissions.isRight());
+        assertEquals(HttpStatus.OK, findPermissions.get().getApiResponse().getHttpStatusCode());
+        assertEquals(permissions.size(), findPermissions.get().getBody().get("permissions").size());
+    }
+
+    @Test
+    void removePermissions() {
+        UserRole role = UserRole.ADMIN;
+        var permissions = Set.of(UserPermission.STUDENT_CREATE, UserPermission.STUDENT_READ);
+        ApiResponse removedPermissionsFromRole = roleService.removePermissionsFromRole(role, permissions);
+        assertEquals(HttpStatus.NO_CONTENT, removedPermissionsFromRole.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findPermissions = roleService.findPermissionsByRole(role);
+        assertTrue(findPermissions.isRight());
+        assertEquals(HttpStatus.OK, findPermissions.get().getApiResponse().getHttpStatusCode());
+        assertEquals(0, findPermissions.get().getBody().get("permissions").size());
+    }
+
+    private void setupAUser() {
         //Given
         var createUserRequest = getCreateUserDTO();
 
@@ -147,24 +205,12 @@ class UserRecordTest {
         assertEquals(HttpStatus.NO_CONTENT, addUserRolesResponse2.getHttpStatusCode());
         Either<FailureResponse, SuccessResponse> findUserResponseAfterRemovingAllRoles2 = findUser(username);
         assertEquals(userRoles2.size(), findUserResponseAfterRemovingAllRoles2.get().getBody().get("roles").size());
-
-        //finally when you delete
-        ApiResponse deleteUserResponse = deleteUser(username);
-        assertEquals(HttpStatus.NO_CONTENT, deleteUserResponse.getHttpStatusCode());
     }
 
-    @Test
-    void createUserWhenCreateUserDTOIsNull() {
-        //Given a null CreateUserRequest object
-        CreateUserRequest createUserRequest = null;
-
-        //When - a user is created
-        Either<FailureResponse, SuccessResponse> createUserResponse = createUser(createUserRequest);
-
-        //Then
-        assertTrue(createUserResponse.isLeft());
-        assertEquals(HttpStatus.BAD_REQUEST, createUserResponse.getLeft().getApiResponse().getHttpStatusCode());
-        assertEquals(BAD_REQUEST_INVALID_PARAMS_CODE, createUserResponse.getLeft().getApiResponse().getResponseCode());
+    private void tearDownAUser() {
+        //finally when you delete
+        ApiResponse deleteUserResponse = deleteAUser(getCreateUserDTO().getUsername());
+        assertEquals(HttpStatus.NO_CONTENT, deleteUserResponse.getHttpStatusCode());
     }
 
     private Either<FailureResponse, SuccessResponse> createUser(CreateUserRequest createUserRequest) {
@@ -179,7 +225,7 @@ class UserRecordTest {
         return userService.updateUser(updateUserRequest);
     }
 
-    private ApiResponse deleteUser(String username) {
+    private ApiResponse deleteAUser(String username) {
         return userService.deleteUser(username);
     }
 

@@ -25,12 +25,17 @@ public class RoleRecord implements RoleService {
     }
 
     @Override
-    public ApiResponse addPermissions(UserRole role, Set<UserPermission> permissions) {
+    public ApiResponse addPermissionsToRole(UserRole role, Set<UserPermission> permissions) {
         return null;
     }
 
     @Override
-    public ApiResponse removePermissions(UserRole role, Set<UserPermission> permissions) {
+    public ApiResponse removePermissionsFromRole(UserRole role, Set<UserPermission> permissions) {
+        return null;
+    }
+
+    @Override
+    public Either<FailureResponse, SuccessResponse> findPermissionsByRole(UserRole role) {
         return null;
     }
 }

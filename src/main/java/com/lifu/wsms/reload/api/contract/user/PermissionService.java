@@ -1,8 +1,11 @@
 package com.lifu.wsms.reload.api.contract.user;
 
 import com.lifu.wsms.reload.dto.response.ApiResponse;
+import com.lifu.wsms.reload.dto.response.FailureResponse;
+import com.lifu.wsms.reload.dto.response.SuccessResponse;
 import com.lifu.wsms.reload.enums.UserPermission;
 import com.lifu.wsms.reload.enums.UserRole;
+import io.vavr.control.Either;
 
 import java.util.Set;
 
@@ -18,7 +21,7 @@ public interface PermissionService {
      * @param permissions The set of permissions to be added to the role.
      * @return An {@code ApiResponse} indicating the result of the operation.
      */
-    ApiResponse addPermissions(UserRole role, Set<UserPermission> permissions);
+    ApiResponse addPermissionsToRole(UserRole role, Set<UserPermission> permissions);
 
     /**
      * Removes all permissions associated with the specified user role.
@@ -27,5 +30,13 @@ public interface PermissionService {
      * @param permissions The set of permissions to be removed from the role.
      * @return An {@code ApiResponse} indicating the result of the operation.
      */
-    ApiResponse removePermissions(UserRole role, Set<UserPermission> permissions);
+    ApiResponse removePermissionsFromRole(UserRole role, Set<UserPermission> permissions);
+
+    /**
+     * Retrieves permissions associated with a given user role.
+     *
+     * @param role The user role for which permissions are to be retrieved.
+     * @return Either a FailureResponse if the permissions cannot be found or a SuccessResponse containing the permissions.
+     */
+    Either<FailureResponse, SuccessResponse> findPermissionsByRole(UserRole role);
 }
