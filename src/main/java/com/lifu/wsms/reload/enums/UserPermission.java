@@ -15,6 +15,13 @@ public enum UserPermission {
     ACCOUNT_READ("ACCOUNT_READ"),
     ACCOUNT_UPDATE("ACCOUNT_UPDATE"),
     ACCOUNT_DELETE("ACCOUNT_DELETE"),
+
+    //User
+    USER_CREATE("USER_CREATE"),
+    USER_READ("USER_READ"),
+    USER_UPDATE("USER_UPDATE"),
+    USER_DELETE("USER_DELETE"),
+
     NONE("NONE");
 
     private final String displayName;

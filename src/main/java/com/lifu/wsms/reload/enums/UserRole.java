@@ -5,7 +5,9 @@ public enum UserRole {
     TEACHER("TEACHER"),
     CASHIER("CASHIER"),
     BURSAR("BURSAR"),
+    ADMISSION_OPS("ADMISSION_OPS"),
     SECURITY("SECURITY"),
+    OPERATION("OPERATION"),
     NONE("NONE");
 
     private final String displayName;

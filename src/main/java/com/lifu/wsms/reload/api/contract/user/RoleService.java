@@ -1,37 +1,31 @@
 package com.lifu.wsms.reload.api.contract.user;
 
-import com.lifu.wsms.reload.dto.response.ApiResponse;
-import com.lifu.wsms.reload.enums.UserRole;
-
-import java.util.Set;
+import com.lifu.wsms.reload.dto.response.FailureResponse;
+import com.lifu.wsms.reload.dto.response.SuccessResponse;
+import io.vavr.control.Either;
 
 /**
- * Interface for user roles related operations.
+ * Service interface for managing roles.
  */
-public interface RoleService {
-    /**
-     * Adds roles to a user.
-     *
-     * @param username The username of the user to add roles to.
-     * @param roles    The set of roles to add.
-     * @return An {@link ApiResponse} indicating the result of the operation.
-     */
-    ApiResponse addRoles(String username, Set<UserRole> roles);
+public interface RoleService extends PermissionService {
 
     /**
-     * Removes all roles from a user.
+     * Retrieves a paginated list of all roles.
      *
-     * @param username The username of the user to remove roles from.
-     * @return An {@link ApiResponse} indicating the result of the operation.
+     * @param pageNumber The page number (starting from 1) of the results to retrieve.
+     * @param pageSize   The maximum number of roles per page.
+     * @return An {@link Either} representing either a {@link FailureResponse} if the operation fails
+     *         or a {@link SuccessResponse} containing the paginated list of roles.
      */
-    ApiResponse removeAllRoles(String username);
+    Either<FailureResponse, SuccessResponse> findAllRoles(int pageNumber, int pageSize);
 
     /**
-     * Removes a specific role from a user.
+     * Retrieves roles associated with a specific user.
      *
-     * @param username The username of the user from which the role will be removed.
-     * @param role     The role to be removed from the user.
-     * @return An {@link ApiResponse} indicating the outcome of the operation.
+     * @param username The username of the user whose roles are to be retrieved.
+     * @return An {@link Either} representing either a {@link FailureResponse} if the operation fails
+     *         or a {@link SuccessResponse} containing the roles associated with the user.
      */
-    ApiResponse removeRole(String username, UserRole role);
+    Either<FailureResponse, SuccessResponse> findRolesByUser(String username);
 }
+

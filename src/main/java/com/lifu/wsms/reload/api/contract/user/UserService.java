@@ -5,16 +5,13 @@ import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
 import com.lifu.wsms.reload.dto.response.ApiResponse;
 import com.lifu.wsms.reload.dto.response.FailureResponse;
 import com.lifu.wsms.reload.dto.response.SuccessResponse;
-import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
 import io.vavr.control.Either;
-
-import java.util.Set;
 
 /**
  * Interface for user-related operations.
  */
-public interface UserService extends RoleService {
+public interface UserService extends UserRoleService {
 
     /**
      * Creates a new user.
