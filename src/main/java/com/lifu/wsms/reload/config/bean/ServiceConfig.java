@@ -3,11 +3,13 @@ package com.lifu.wsms.reload.config.bean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lifu.wsms.reload.api.contract.student.StudentService;
+import com.lifu.wsms.reload.api.contract.user.RoleService;
 import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.repository.*;
 import com.lifu.wsms.reload.service.student.StudentNumberGenerator;
 import com.lifu.wsms.reload.api.contract.student.StudentNumberService;
 import com.lifu.wsms.reload.service.student.StudentRecord;
+import com.lifu.wsms.reload.service.user.RoleRecord;
 import com.lifu.wsms.reload.service.user.UserRecord;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,5 +53,10 @@ public class ServiceConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RoleService roleService() {
+        return new RoleRecord();
     }
 }
