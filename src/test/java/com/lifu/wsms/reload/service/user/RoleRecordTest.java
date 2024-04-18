@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled
+//@Disabled
 class RoleRecordTest {
     @Autowired
     private UserService userService;
@@ -69,7 +69,7 @@ class RoleRecordTest {
     }
 
     @Test
-    void addPermissions() {
+    void addPermissionsToRole() {
         UserRole role = UserRole.ADMIN;
         var permissions = Set.of(UserPermission.STUDENT_CREATE, UserPermission.STUDENT_READ);
         ApiResponse addPermissions = roleService.addPermissionsToRole(role, permissions);
@@ -81,7 +81,7 @@ class RoleRecordTest {
     }
 
     @Test
-    void removePermissions() {
+    void removePermissionsFromRole() {
         UserRole role = UserRole.ADMIN;
         var permissions = Set.of(UserPermission.STUDENT_CREATE, UserPermission.STUDENT_READ);
         ApiResponse removedPermissionsFromRole = roleService.removePermissionsFromRole(role, permissions);
@@ -90,6 +90,10 @@ class RoleRecordTest {
         assertTrue(findPermissions.isRight());
         assertEquals(HttpStatus.OK, findPermissions.get().getApiResponse().getHttpStatusCode());
         assertEquals(0, findPermissions.get().getBody().get("permissions").size());
+    }
+
+    @Test
+    void findPermissionsByRole() {
     }
 
     private void setupAUser() {

@@ -57,7 +57,9 @@ public class ServiceConfig {
 
     @Bean
     public RoleService roleService(final RoleRepository roleRepository,
-                                   final PermissionRepository permissionRepository) {
-        return new RoleRecord(roleRepository, permissionRepository);
+                                   final PermissionRepository permissionRepository,
+                                   final ObjectMapper objectMapper,
+                                   final UserRepository userRepository) {
+        return new RoleRecord(roleRepository, permissionRepository, objectMapper, userRepository);
     }
 }
