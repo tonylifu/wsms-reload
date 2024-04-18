@@ -20,4 +20,14 @@ public class Permission implements Serializable {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private long createdAt;
+
+    private long lastUpdatedAt;
+
+    @Column(nullable = false)
+    private String actionBy;
+
+    @Column(nullable = false)
+    private String lastActionBy;
+
 }

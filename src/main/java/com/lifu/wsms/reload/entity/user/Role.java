@@ -25,4 +25,14 @@ public class Role implements Serializable {
 
     @JdbcTypeCode(SqlTypes.JSON)
     private Set<Item> permissions = new HashSet<>();
+
+    private long createdAt;
+
+    private long lastUpdatedAt;
+
+    @Column(nullable = false)
+    private String actionBy;
+
+    @Column(nullable = false)
+    private String lastActionBy;
 }
