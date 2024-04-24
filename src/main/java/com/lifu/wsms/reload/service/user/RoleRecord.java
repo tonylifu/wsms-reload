@@ -132,12 +132,61 @@ public class RoleRecord implements RoleService {
 
     @Override
     public ApiResponse removeAllPermissions(UserRole role) {
-        return null;
+        try {
+            return roleRepository.findByName(role.name())
+                    .map(r -> {
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        Set<Item> permissions = new HashSet<>();
+                        r.setPermissions(permissions);
+                        r.setLastUpdatedAt(timeStamp);
+                        r.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        Role userRole = roleRepository.save(r);
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus, headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
 
     @Override
     public ApiResponse removePermissionsFromRole(UserRole role, Set<UserPermission> permissions) {
-        return null;
+        if (permissions == null || permissions.isEmpty()) {
+            return buildErrorResponse(HttpStatus.BAD_REQUEST, BAD_REQUEST_INVALID_PARAMS_CODE).getLeft().getApiResponse();
+        }
+        try {
+            return roleRepository.findByName(role.name())
+                    .map(r -> {
+                        long timeStamp = AppUtil.convertLocalDateTimeToLong(LocalDateTime.now());
+                        r.getPermissions().removeIf(p -> checkAnyMatch(p.getName(), permissions));
+                        r.setLastUpdatedAt(timeStamp);
+                        r.setLastActionBy(AppUtil.getUserFromSecurityContext());
+                        Role userRole = roleRepository.save(r);
+                        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add("X-HttpStatus", httpStatus.toString());
+                        return buildSuccessApiResponse(httpStatus,
+                                headers, TRANSACTION_SUCCESS_CODE);
+                    })
+                    .orElseGet(() -> buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE)
+                            .getLeft()
+                            .getApiResponse());
+        } catch (DataAccessException e) {
+            log.error("find request error => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.NOT_FOUND, RESOURCE_NOT_FOUND_CODE).getLeft().getApiResponse();
+        } catch (Exception e) {
+            log.error("an unknown error occurred => {}", e.getMessage());
+            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR_CODE).getLeft().getApiResponse();
+        }
     }
 
     @Override
@@ -189,5 +238,16 @@ public class RoleRecord implements RoleService {
         return permissionSet.stream()
                 .map(permission -> new Item(permission.getName()))
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Checks if any element in the set of permissions matches the specified name.
+     *
+     * @param name        the name to match against the permissions
+     * @param permissions the set of permissions to check
+     * @return {@code true} if any permission in the set matches the specified name, {@code false} otherwise
+     */
+    private boolean checkAnyMatch(String name, Set<UserPermission> permissions) {
+        return permissions.stream().anyMatch(permission -> permission.name().equals(name));
     }
 }

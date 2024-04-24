@@ -13,7 +13,6 @@ import com.lifu.wsms.reload.enums.UserStatus;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-//@Disabled
 class RoleRecordTest {
     @Autowired
     private UserService userService;
@@ -81,19 +79,25 @@ class RoleRecordTest {
     }
 
     @Test
-    void removePermissionsFromRole() {
+    void removePermissionsFromRoleAndFindPermissionsByRole() {
         UserRole role = UserRole.ADMIN;
         var permissions = Set.of(UserPermission.STUDENT_CREATE, UserPermission.STUDENT_READ);
-        ApiResponse removedPermissionsFromRole = roleService.removePermissionsFromRole(role, permissions);
-        assertEquals(HttpStatus.NO_CONTENT, removedPermissionsFromRole.getHttpStatusCode());
+
+        ApiResponse addPermissions = roleService.addPermissionsToRole(role, permissions);
+        assertEquals(HttpStatus.NO_CONTENT, addPermissions.getHttpStatusCode());
         Either<FailureResponse, SuccessResponse> findPermissions = roleService.findPermissionsByRole(role);
         assertTrue(findPermissions.isRight());
         assertEquals(HttpStatus.OK, findPermissions.get().getApiResponse().getHttpStatusCode());
-        assertEquals(0, findPermissions.get().getBody().get("permissions").size());
-    }
+        assertEquals(permissions.size(), findPermissions.get().getBody().get("permissions").size());
 
-    @Test
-    void findPermissionsByRole() {
+        var permissions2 = Set.of(UserPermission.STUDENT_CREATE);
+
+        ApiResponse removedPermissionsFromRole = roleService.removePermissionsFromRole(role, permissions2);
+        assertEquals(HttpStatus.NO_CONTENT, removedPermissionsFromRole.getHttpStatusCode());
+        Either<FailureResponse, SuccessResponse> findPermissions2 = roleService.findPermissionsByRole(role);
+        assertTrue(findPermissions2.isRight());
+        assertEquals(HttpStatus.OK, findPermissions2.get().getApiResponse().getHttpStatusCode());
+        assertEquals(permissions.size() - permissions2.size(), findPermissions2.get().getBody().get("permissions").size());
     }
 
     private void setupAUser() {
