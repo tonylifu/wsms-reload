@@ -450,8 +450,14 @@ public class UserRecord implements UserService {
         Set<Role> roleSet = roles.stream()
                 .filter(role -> !roleRepository.existsByName(role.getName()))
                 .map(role -> {
+                    long now = convertLocalDateTimeToLong(LocalDateTime.now());
+                    String actionBy = AppUtil.getUserFromSecurityContext();
                     Role newRole = new Role();
                     newRole.setName(role.getName());
+                    newRole.setCreatedAt(now);
+                    newRole.setLastUpdatedAt(now);
+                    newRole.setActionBy(actionBy);
+                    newRole.setLastActionBy(actionBy);
                     return newRole;
                 })
                 .collect(Collectors.toSet());

@@ -4,13 +4,13 @@ import com.lifu.wsms.reload.api.AppUtil;
 import com.lifu.wsms.reload.dto.Item;
 import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
 import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
+import com.lifu.wsms.reload.entity.user.Role;
 import com.lifu.wsms.reload.entity.user.User;
 import com.lifu.wsms.reload.enums.Gender;
+import com.lifu.wsms.reload.enums.UserPermission;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
-
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 public class UserTestUtil {
@@ -53,5 +53,19 @@ public class UserTestUtil {
         user.setMobile("07766433489");
         user.setRoles(Set.of(new Item()));
         return user;
+    }
+
+    public static Role getRoleEntity() {
+        Role role = new Role();
+        role.setName(UserRole.ADMIN.name());
+        role.setPermissions(Set.of(
+                Item.builder().name(UserPermission.STUDENT_CREATE.name()).build(),
+                Item.builder().name(UserPermission.STUDENT_READ.name()).build(),
+                Item.builder().name(UserPermission.STUDENT_UPDATE.name()).build(),
+                Item.builder().name(UserPermission.STUDENT_DELETE.name()).build(),
+                Item.builder().name(UserPermission.USER_CREATE.name()).build(),
+                Item.builder().name(UserPermission.USER_READ.name()).build()
+        ));
+        return role;
     }
 }

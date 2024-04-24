@@ -24,6 +24,14 @@ public interface PermissionService {
     ApiResponse addPermissionsToRole(UserRole role, Set<UserPermission> permissions);
 
     /**
+
+     Removes all permissions associated with a specific user role.
+     @param role The user role for which permissions are to be removed.
+     @return An ApiResponse indicating the success or failure of the operation.
+     */
+    ApiResponse removeAllPermissions(UserRole role);
+
+    /**
      * Removes all permissions associated with the specified user role.
      *
      * @param role The user role from which permissions will be removed.
