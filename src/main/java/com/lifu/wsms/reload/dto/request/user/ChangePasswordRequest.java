@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PasswordSetRequest {
-    private char[] password;
+public class ChangePasswordRequest {
+    private char[] currentPassword;
+    private char[] newPassword;
 }

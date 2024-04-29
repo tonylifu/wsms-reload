@@ -2,6 +2,7 @@ package com.lifu.wsms.reload.controller.user;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.lifu.wsms.reload.dto.request.user.ChangePasswordRequest;
 import com.lifu.wsms.reload.dto.request.user.PasswordSetRequest;
 import com.lifu.wsms.reload.enums.UserRole;
 import net.minidev.json.JSONArray;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -28,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void shouldCreateAndReadUser() {
@@ -82,7 +86,7 @@ public class UserControllerTest {
         assertEquals(updatedRoles.size(), rolesAfterUpdate.size());
 
         //Given - Set Password
-        String password = "Password@1234";
+        char[] password = "Password@1234".toCharArray();
         PasswordSetRequest passwordSetRequest = new PasswordSetRequest();
         passwordSetRequest.setPassword(password);
 
@@ -91,10 +95,32 @@ public class UserControllerTest {
         assertFalse(isPasswordSet);
 
         //When
-        restTemplate.put(location + "/password", passwordSetRequest);
+        restTemplate.put(location + "/set-password", passwordSetRequest);
         ResponseEntity<String> getUserResponseEntityAfterPasswordSet = restTemplate.getForEntity(location, String.class);
+
+        //Then
         DocumentContext documentContextAfterPasswordSet = JsonPath.parse(getUserResponseEntityAfterPasswordSet.getBody());
         boolean passwordSet = documentContextAfterPasswordSet.read("$.body.passwordSet");
+        String setEncodedPassword = documentContextAfterPasswordSet.read("$.body.password");
         assertTrue(passwordSet);
+        assertTrue(passwordEncoder.matches(new String(password), setEncodedPassword));
+
+        //When - Change Password
+        // Given - char[] currentPassword = password;
+        char[] newPassword = "pAssWORD@321".toCharArray();
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        changePasswordRequest.setCurrentPassword(password);
+        changePasswordRequest.setNewPassword(newPassword);
+
+        //Then
+        restTemplate.put(location + "/change-password", changePasswordRequest);
+        ResponseEntity<String> getUserResponseEntityAfterPasswordChange = restTemplate.getForEntity(location, String.class);
+
+        DocumentContext documentContextAfterPasswordChange = JsonPath.parse(getUserResponseEntityAfterPasswordChange.getBody());
+        boolean passwordChange = documentContextAfterPasswordChange.read("$.body.passwordSet");
+        String newEncodedPassword = documentContextAfterPasswordChange.read("$.body.password");
+        assertTrue(passwordChange);
+        assertTrue(passwordEncoder.matches(new String(newPassword), newEncodedPassword));
+        assertFalse(passwordEncoder.matches(new String(password), setEncodedPassword));
     }
 }

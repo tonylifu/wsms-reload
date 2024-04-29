@@ -15,7 +15,9 @@ public class UserController {
 
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_USERNAME = USER_PATH + "/{username}";
-    public static final String USER_PATH_PASSWORD_SET = USER_PATH_USERNAME + "/password";
+    public static final String USER_PATH_SET_PASSWORD = USER_PATH_USERNAME + "/set-password";
+    public static final String USER_PATH_CHANGE_PASSWORD = USER_PATH_USERNAME + "/change-password";
+    private static final String LOCATION = "location";
 
     @PostMapping(USER_PATH)
     public ResponseEntity<?> createUser(@RequestBody final CreateUserRequest createUserRequest) {
@@ -28,7 +30,7 @@ public class UserController {
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
                                 .headers(successResponse.getApiResponse().getHttpHeaders())
-                                .header("location", USER_PATH + "/" +
+                                .header(LOCATION, USER_PATH + "/" +
                                         successResponse.getBody().get("username").asText())
                                 .body(successResponse)
                 );
@@ -45,7 +47,7 @@ public class UserController {
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
                                 .headers(successResponse.getApiResponse().getHttpHeaders())
-                                .header("location", USER_PATH + "/" +
+                                .header(LOCATION, USER_PATH + "/" +
                                         successResponse.getBody().get("username").asText())
                                 .body(successResponse)
                 );
@@ -62,18 +64,18 @@ public class UserController {
                         successResponse -> ResponseEntity
                                 .status(successResponse.getApiResponse().getHttpStatusCode())
                                 .headers(successResponse.getApiResponse().getHttpHeaders())
-                                .header("location", USER_PATH + "/" +
+                                .header(LOCATION, USER_PATH + "/" +
                                         successResponse.getBody().get("username").asText())
                                 .body(successResponse)
                 );
     }
 
-    @PutMapping(USER_PATH_PASSWORD_SET)
+    @PutMapping(USER_PATH_SET_PASSWORD)
     public ResponseEntity<?> setPassword(@PathVariable("username") String username, @RequestBody final PasswordSetRequest passwordSetRequest) {
-        var response = userService.setPassword(username, passwordSetRequest.getPassword().toCharArray());
+        var response = userService.setPassword(username, passwordSetRequest.getPassword());
         return ResponseEntity
                 .status(response.getHttpStatusCode())
-                .header("location", USER_PATH + "/" + username)
+                .header(LOCATION, USER_PATH + "/" + username)
                 .body(response);
     }
 }
