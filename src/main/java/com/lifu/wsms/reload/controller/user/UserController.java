@@ -1,9 +1,7 @@
 package com.lifu.wsms.reload.controller.user;
 
 import com.lifu.wsms.reload.api.contract.user.UserService;
-import com.lifu.wsms.reload.dto.request.user.CreateUserRequest;
-import com.lifu.wsms.reload.dto.request.user.PasswordSetRequest;
-import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
+import com.lifu.wsms.reload.dto.request.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +15,7 @@ public class UserController {
     public static final String USER_PATH_USERNAME = USER_PATH + "/{username}";
     public static final String USER_PATH_SET_PASSWORD = USER_PATH_USERNAME + "/set-password";
     public static final String USER_PATH_CHANGE_PASSWORD = USER_PATH_USERNAME + "/change-password";
+    public static final String USER_PATH_CHANGE_STATUS = USER_PATH_USERNAME + "/change-status";
     private static final String LOCATION = "location";
 
     @PostMapping(USER_PATH)
@@ -71,8 +70,30 @@ public class UserController {
     }
 
     @PutMapping(USER_PATH_SET_PASSWORD)
-    public ResponseEntity<?> setPassword(@PathVariable("username") String username, @RequestBody final PasswordSetRequest passwordSetRequest) {
+    public ResponseEntity<?> setPassword(@PathVariable("username") String username,
+                                         @RequestBody final PasswordRequest passwordSetRequest) {
         var response = userService.setPassword(username, passwordSetRequest.getPassword());
+        return ResponseEntity
+                .status(response.getHttpStatusCode())
+                .header(LOCATION, USER_PATH + "/" + username)
+                .body(response);
+    }
+
+    @PutMapping(USER_PATH_CHANGE_PASSWORD)
+    public ResponseEntity<?> changePassword(@PathVariable("username") String username,
+                                            @RequestBody final ChangePasswordRequest changePasswordRequest) {
+        var response = userService.changePassword(username, changePasswordRequest.getCurrentPassword(),
+                changePasswordRequest.getNewPassword());
+        return ResponseEntity
+                .status(response.getHttpStatusCode())
+                .header(LOCATION, USER_PATH + "/" + username)
+                .body(response);
+    }
+
+    @PutMapping(USER_PATH_CHANGE_STATUS)
+    public ResponseEntity<?> changeStatus(@PathVariable("username") String username,
+                                            @RequestBody final UserStatusUpdateRequest statusUpdateRequest) {
+        var response = userService.updateStatus(username, statusUpdateRequest.getStatus());
         return ResponseEntity
                 .status(response.getHttpStatusCode())
                 .header(LOCATION, USER_PATH + "/" + username)

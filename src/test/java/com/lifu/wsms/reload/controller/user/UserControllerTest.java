@@ -3,8 +3,11 @@ package com.lifu.wsms.reload.controller.user;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.lifu.wsms.reload.dto.request.user.ChangePasswordRequest;
-import com.lifu.wsms.reload.dto.request.user.PasswordSetRequest;
+import com.lifu.wsms.reload.dto.request.user.PasswordRequest;
+import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
+import com.lifu.wsms.reload.dto.request.user.UserStatusUpdateRequest;
 import com.lifu.wsms.reload.enums.UserRole;
+import com.lifu.wsms.reload.enums.UserStatus;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +90,7 @@ public class UserControllerTest {
 
         //Given - Set Password
         char[] password = "Password@1234".toCharArray();
-        PasswordSetRequest passwordSetRequest = new PasswordSetRequest();
+        PasswordRequest passwordSetRequest = new PasswordRequest();
         passwordSetRequest.setPassword(password);
 
         //And
@@ -121,6 +124,19 @@ public class UserControllerTest {
         String newEncodedPassword = documentContextAfterPasswordChange.read("$.body.password");
         assertTrue(passwordChange);
         assertTrue(passwordEncoder.matches(new String(newPassword), newEncodedPassword));
-        assertFalse(passwordEncoder.matches(new String(password), setEncodedPassword));
+        assertFalse(passwordEncoder.matches(new String(password), newEncodedPassword));
+
+        //Given
+        assertEquals(UserStatus.CREATED.name(),  documentContextAfterPasswordChange.read("$.body.status"));
+
+        //When
+        UserStatusUpdateRequest statusUpdateRequest = new UserStatusUpdateRequest();
+        statusUpdateRequest.setStatus(UserStatus.ACTIVE);
+        restTemplate.put(location + "/change-status", statusUpdateRequest);
+        ResponseEntity<String> getUserResponseEntityAfterStatusUpdate = restTemplate.getForEntity(location, String.class);
+
+        //Then
+        DocumentContext documentContextAfterStatusUpdate = JsonPath.parse(getUserResponseEntityAfterStatusUpdate.getBody());
+        assertEquals(UserStatus.ACTIVE.name(),  documentContextAfterStatusUpdate.read("$.body.status"));
     }
 }
