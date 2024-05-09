@@ -138,5 +138,7 @@ public class UserControllerTest {
         //Then
         DocumentContext documentContextAfterStatusUpdate = JsonPath.parse(getUserResponseEntityAfterStatusUpdate.getBody());
         assertEquals(UserStatus.ACTIVE.name(),  documentContextAfterStatusUpdate.read("$.body.status"));
+
+        //Given - a set of Roles => Add Roles
     }
 }
