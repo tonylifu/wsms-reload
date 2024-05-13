@@ -2,6 +2,7 @@ package com.lifu.wsms.reload.controller.user;
 
 import com.lifu.wsms.reload.api.contract.user.UserService;
 import com.lifu.wsms.reload.dto.request.user.*;
+import com.lifu.wsms.reload.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -96,6 +97,16 @@ public class UserController {
     public ResponseEntity<?> changeStatus(@PathVariable("username") String username,
                                             @RequestBody final UserStatusUpdateRequest statusUpdateRequest) {
         var response = userService.updateStatus(username, statusUpdateRequest.getStatus());
+        return ResponseEntity
+                .status(response.getHttpStatusCode())
+                .header(LOCATION, USER_PATH + "/" + username)
+                .body(response);
+    }
+
+    @PutMapping(USER_PATH_ADD_ROLES)
+    public ResponseEntity<ApiResponse> addRoles(@PathVariable("username") String username,
+                                                @RequestBody final UpdateUserRoles updateUserRoles) {
+        var response = userService.addRoles(username, updateUserRoles.getRoles());
         return ResponseEntity
                 .status(response.getHttpStatusCode())
                 .header(LOCATION, USER_PATH + "/" + username)
