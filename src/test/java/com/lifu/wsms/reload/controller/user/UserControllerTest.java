@@ -19,8 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.lifu.wsms.reload.controller.user.UserController.ADD_ROLES_PATH;
-import static com.lifu.wsms.reload.controller.user.UserController.USER_PATH;
+import static com.lifu.wsms.reload.controller.user.UserController.*;
 import static com.lifu.wsms.reload.util.UserTestUtil.getCreateUserDTO;
 import static com.lifu.wsms.reload.util.UserTestUtil.getUpdateUserDTO;
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +45,7 @@ public class UserControllerTest {
         assertEquals(HttpStatus.CREATED, createUserResponseEntity.getStatusCode());
 
         //When
-        String location = createUserResponseEntity.getHeaders().getFirst("location");
+        String location = createUserResponseEntity.getHeaders().getFirst(LOCATION);
         ResponseEntity<String> getUserResponseEntity = restTemplate.getForEntity(location, String.class);
 
         //Then
@@ -96,7 +95,7 @@ public class UserControllerTest {
         assertFalse(isPasswordSet);
 
         //When
-        restTemplate.put(location + "/set-password", passwordSetRequest);
+        restTemplate.put(location + SET_PASSWORD_PATH, passwordSetRequest);
         ResponseEntity<String> getUserResponseEntityAfterPasswordSet = restTemplate.getForEntity(location, String.class);
 
         //Then
@@ -114,7 +113,7 @@ public class UserControllerTest {
         changePasswordRequest.setNewPassword(newPassword);
 
         //Then
-        restTemplate.put(location + "/change-password", changePasswordRequest);
+        restTemplate.put(location + CHANGE_PASSWORD_PATH, changePasswordRequest);
         ResponseEntity<String> getUserResponseEntityAfterPasswordChange = restTemplate.getForEntity(location, String.class);
 
         DocumentContext documentContextAfterPasswordChange = JsonPath.parse(getUserResponseEntityAfterPasswordChange.getBody());
@@ -130,7 +129,7 @@ public class UserControllerTest {
         //When
         UserStatusUpdateRequest statusUpdateRequest = new UserStatusUpdateRequest();
         statusUpdateRequest.setStatus(UserStatus.ACTIVE);
-        restTemplate.put(location + "/change-status", statusUpdateRequest);
+        restTemplate.put(location + CHANGE_STATUS_PATH, statusUpdateRequest);
         ResponseEntity<String> getUserResponseEntityAfterStatusUpdate = restTemplate.getForEntity(location, String.class);
 
         //Then

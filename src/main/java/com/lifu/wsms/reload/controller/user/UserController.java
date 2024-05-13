@@ -14,12 +14,15 @@ public class UserController {
 
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_USERNAME = USER_PATH + "/{username}";
-    public static final String USER_PATH_SET_PASSWORD = USER_PATH_USERNAME + "/set-password";
-    public static final String USER_PATH_CHANGE_PASSWORD = USER_PATH_USERNAME + "/change-password";
-    public static final String USER_PATH_CHANGE_STATUS = USER_PATH_USERNAME + "/change-status";
+    public static final String SET_PASSWORD_PATH = "/set-password";
+    public static final String USER_PATH_SET_PASSWORD = USER_PATH_USERNAME + SET_PASSWORD_PATH;
+    public static final String CHANGE_PASSWORD_PATH = "/change-password";
+    public static final String USER_PATH_CHANGE_PASSWORD = USER_PATH_USERNAME + CHANGE_PASSWORD_PATH;
+    public static final String CHANGE_STATUS_PATH = "/change-status";
+    public static final String USER_PATH_CHANGE_STATUS = USER_PATH_USERNAME + CHANGE_STATUS_PATH;
     public static final String ADD_ROLES_PATH = "/add-roles";
     public static final String USER_PATH_ADD_ROLES = USER_PATH_USERNAME + ADD_ROLES_PATH;
-    private static final String LOCATION = "location";
+    public static final String LOCATION = "location";
 
     @PostMapping(USER_PATH)
     public ResponseEntity<?> createUser(@RequestBody final CreateUserRequest createUserRequest) {
