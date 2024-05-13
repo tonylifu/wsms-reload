@@ -16,6 +16,8 @@ public class UserController {
     public static final String USER_PATH_SET_PASSWORD = USER_PATH_USERNAME + "/set-password";
     public static final String USER_PATH_CHANGE_PASSWORD = USER_PATH_USERNAME + "/change-password";
     public static final String USER_PATH_CHANGE_STATUS = USER_PATH_USERNAME + "/change-status";
+    public static final String ADD_ROLES_PATH = "/add-roles";
+    public static final String USER_PATH_ADD_ROLES = USER_PATH_USERNAME + ADD_ROLES_PATH;
     private static final String LOCATION = "location";
 
     @PostMapping(USER_PATH)

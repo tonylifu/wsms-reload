@@ -2,10 +2,7 @@ package com.lifu.wsms.reload.controller.user;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.lifu.wsms.reload.dto.request.user.ChangePasswordRequest;
-import com.lifu.wsms.reload.dto.request.user.PasswordRequest;
-import com.lifu.wsms.reload.dto.request.user.UpdateUserRequest;
-import com.lifu.wsms.reload.dto.request.user.UserStatusUpdateRequest;
+import com.lifu.wsms.reload.dto.request.user.*;
 import com.lifu.wsms.reload.enums.UserRole;
 import com.lifu.wsms.reload.enums.UserStatus;
 import net.minidev.json.JSONArray;
@@ -22,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.lifu.wsms.reload.controller.user.UserController.ADD_ROLES_PATH;
 import static com.lifu.wsms.reload.controller.user.UserController.USER_PATH;
 import static com.lifu.wsms.reload.util.UserTestUtil.getCreateUserDTO;
 import static com.lifu.wsms.reload.util.UserTestUtil.getUpdateUserDTO;
@@ -140,5 +138,18 @@ public class UserControllerTest {
         assertEquals(UserStatus.ACTIVE.name(),  documentContextAfterStatusUpdate.read("$.body.status"));
 
         //Given - a set of Roles => Add Roles
+        Set<UserRole> someRoles = Set.of(UserRole.ADMIN, UserRole.BURSAR, UserRole.CASHIER);
+        UpdateUserRoles updateUserRoles = new UpdateUserRoles();
+        updateUserRoles.setRoles(someRoles);
+
+        //When you add roles
+        restTemplate.put(location + ADD_ROLES_PATH, updateUserRoles);
+        ResponseEntity<String> userAfterAddRoles = restTemplate.getForEntity(location, String.class);
+
+        //Then
+        DocumentContext documentContextAfterAddRoles = JsonPath.parse(userAfterAddRoles.getBody());
+        JSONArray rolesAfterAddRoles = documentContextAfterAddRoles.read("$.body.roles");
+        updatedRoles.addAll(someRoles);
+        assertEquals(updatedRoles.size(), rolesAfterAddRoles.size());
     }
 }
