@@ -22,6 +22,10 @@ public class UserController {
     public static final String USER_PATH_CHANGE_STATUS = USER_PATH_USERNAME + CHANGE_STATUS_PATH;
     public static final String ADD_ROLES_PATH = "/add-roles";
     public static final String USER_PATH_ADD_ROLES = USER_PATH_USERNAME + ADD_ROLES_PATH;
+    public static final String REMOVE_ALL_ROLES_PATH = "/remove-all-roles";
+    public static final String USER_PATH_REMOVE_ALL_ROLES = USER_PATH_USERNAME + REMOVE_ALL_ROLES_PATH;
+    public static final String REMOVE_ROLE_PATH = "/remove-role";
+    public static final String USER_PATH_REMOVE_ROLE = USER_PATH_USERNAME + REMOVE_ROLE_PATH;
     public static final String LOCATION = "location";
 
     @PostMapping(USER_PATH)
