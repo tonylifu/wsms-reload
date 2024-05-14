@@ -119,4 +119,23 @@ public class UserController {
                 .header(LOCATION, USER_PATH + "/" + username)
                 .body(response);
     }
+
+    @PutMapping(USER_PATH_REMOVE_ALL_ROLES)
+    public ResponseEntity<ApiResponse> removeAllRoles(@PathVariable("username") String username) {
+        var response = userService.removeAllRoles(username);
+        return ResponseEntity
+                .status(response.getHttpStatusCode())
+                .header(LOCATION, USER_PATH + "/" + username)
+                .body(response);
+    }
+
+    @PutMapping(USER_PATH_REMOVE_ROLE)
+    public ResponseEntity<ApiResponse> removeRole(@PathVariable("username") String username,
+                                                @RequestBody final UpdateUserRole updateUserRole) {
+        var response = userService.removeRole(username, updateUserRole.getRole());
+        return ResponseEntity
+                .status(response.getHttpStatusCode())
+                .header(LOCATION, USER_PATH + "/" + username)
+                .body(response);
+    }
 }
