@@ -150,5 +150,26 @@ public class UserControllerTest {
         JSONArray rolesAfterAddRoles = documentContextAfterAddRoles.read("$.body.roles");
         updatedRoles.addAll(someRoles);
         assertEquals(updatedRoles.size(), rolesAfterAddRoles.size());
+
+        //When - you remove a role
+        UpdateUserRole updateUserRole = new UpdateUserRole();
+        updateUserRole.setRole(UserRole.ADMIN);
+        restTemplate.put(location + REMOVE_ROLE_PATH, updateUserRole);
+        ResponseEntity<String> userAfterRemoveRole = restTemplate.getForEntity(location, String.class);
+
+        //Then
+        DocumentContext documentContextAfterRemoveRole = JsonPath.parse(userAfterRemoveRole.getBody());
+        JSONArray rolesAfterRemoveRole = documentContextAfterRemoveRole.read("$.body.roles");
+        assertEquals(rolesAfterAddRoles.size() - 1, rolesAfterRemoveRole.size());
+
+
+       //Given the above user, When you remove all roles
+        restTemplate.put(location + REMOVE_ALL_ROLES_PATH, null);
+        ResponseEntity<String> userAfterRemoveAllRoles = restTemplate.getForEntity(location, String.class);
+
+        //Then
+        DocumentContext documentContextAfterRemoveAllRoles = JsonPath.parse(userAfterRemoveAllRoles.getBody());
+        JSONArray rolesAfterRemoveAllRoles = documentContextAfterRemoveAllRoles.read("$.body.roles");
+        assertEquals(0, rolesAfterRemoveAllRoles.size());
     }
 }
